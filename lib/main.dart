@@ -1,16 +1,7 @@
 import 'package:flutter/material.dart';
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
 import 'model/counter_model.dart';
 import 'viewmodel/counter_viewmodel.dart';
 import 'view/counter_view.dart';
->>>>>>> Stashed changes
-=======
-import 'model/counter_model.dart';
-import 'viewmodel/counter_viewmodel.dart';
-import 'view/counter_view.dart';
->>>>>>> Stashed changes
 
 void main() {
   runApp(const MyApp());
