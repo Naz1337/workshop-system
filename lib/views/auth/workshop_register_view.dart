@@ -156,7 +156,7 @@ class _WorkshopRegisterViewState extends State<WorkshopRegisterView> {
                     const SizedBox(height: 20),
                     TextButton(
                       onPressed: () {
-                        context.go('/register/foreman'); // Navigate to foreman registration
+                        context.push('/register/foreman'); // Navigate to foreman registration
                       },
                       child: const Text('Are you a Foreman? Register here.'),
                     ),

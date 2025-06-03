@@ -29,3 +29,23 @@ This project will leverage the following key technologies and packages:
 2.  **Provider:** For state management, to facilitate the communication between Views and ViewModels in adherence with the MVVM pattern. Provider will be used for dependency injection and managing the lifecycle of ViewModels.
 3.  **go_router:** For declarative routing, ensuring a robust and type-safe navigation system within the application. This will help manage complex navigation flows and deep linking.
 4.  **Stripe:** For processing payments from workshop owners for foreman services. Integration will handle secure payment transactions.
+
+## Navigation Guidelines (go_router)
+
+This project utilizes `go_router` for navigation. It's crucial to understand the difference between `context.go()` and `context.push()` to ensure correct navigation behavior and user experience.
+
+*   **`context.push('/path')`**:
+    *   **Purpose**: Use when navigating to a new screen where the user should be able to return to the previous screen using the system back button or an in-app back button.
+    *   **Behavior**: Adds the new route on top of the current navigation stack, preserving the history.
+    *   **Examples**:
+        *   Navigating from a list to a detail screen.
+        *   Navigating from a welcome/login screen to a registration screen.
+        *   Opening a settings page.
+
+*   **`context.go('/path')`**:
+    *   **Purpose**: Use when navigating to a new screen that should replace the current navigation stack. This is typically for transitions where going back to the previous screen doesn't make logical sense.
+    *   **Behavior**: Replaces the current route in the navigation stack, effectively clearing the history up to that point.
+    *   **Examples**:
+        *   After a successful login, navigating to the main home screen (prevents going back to the login screen).
+        *   After a logout, navigating to the welcome/login screen.
+        *   Switching between major sections of an app where the previous section's state is not relevant.

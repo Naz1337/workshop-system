@@ -150,7 +150,7 @@ class _ForemanRegisterViewState extends State<ForemanRegisterView> {
                     const SizedBox(height: 20),
                     TextButton(
                       onPressed: () {
-                        context.go('/register/workshop'); // Navigate to workshop registration
+                        context.push('/register/workshop'); // Navigate to workshop registration
                       },
                       child: const Text('Are you a Workshop Owner? Register here.'),
                     ),

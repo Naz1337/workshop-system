@@ -16,14 +16,14 @@ class WelcomeView extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                context.go('/login');
+                context.push('/login');
               },
               child: const Text('Login'),
             ),
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {
-                context.go('/register/foreman');
+                context.push('/register/foreman');
               },
               child: const Text('Register'),
             ),

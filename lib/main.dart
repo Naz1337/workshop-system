@@ -57,7 +57,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       routerConfig: router, // Use the global router instance
-      title: 'Flutter Demo',
+      title: 'Workshop Management System',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),

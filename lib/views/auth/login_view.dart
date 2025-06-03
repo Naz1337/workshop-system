@@ -74,7 +74,7 @@ class _LoginViewState extends State<LoginView> {
                   const SizedBox(height: 20),
                   TextButton(
                     onPressed: () {
-                      context.go('/register/foreman'); // Navigate to registration
+                      context.push('/register/foreman'); // Navigate to registration
                     },
                     child: const Text('Don\'t have an account? Register here.'),
                   ),
