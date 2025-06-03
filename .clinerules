@@ -1,0 +1,18 @@
+# Project Architecture Guidelines
+
+## MVVM (Model-View-ViewModel) Adherence
+
+This project strictly follows the Model-View-ViewModel (MVVM) architectural pattern.
+
+### Core Principles:
+1.  **View-ViewModel Relationship:** Each View (UI component/screen) must have one, and only one, corresponding ViewModel.
+2.  **View Responsibility:** Views are responsible for presenting data to the user and capturing user input. They should be as "dumb" as possible, delegating all logic and state management to their ViewModel.
+3.  **ViewModel Responsibility:**
+    *   ViewModels hold the state and presentation logic for their associated View.
+    *   They expose data to the View through observable properties or streams.
+    *   They handle user actions delegated by the View.
+    *   ViewModels interact with the Model layer (Repositories and Services) to fetch and manipulate data.
+4.  **Model Layer Interaction:**
+    *   Views **must not** directly interact with the Model layer (Repositories, Services, Data Sources).
+    *   All communication with the Model layer must be intermediated by a ViewModel.
+5.  **Data Flow:** User Action (View) -> ViewModel -> Model (Repository/Service) -> ViewModel (updates state) -> View (reflects updated state).
