@@ -16,3 +16,16 @@ This project strictly follows the Model-View-ViewModel (MVVM) architectural patt
     *   Views **must not** directly interact with the Model layer (Repositories, Services, Data Sources).
     *   All communication with the Model layer must be intermediated by a ViewModel.
 5.  **Data Flow:** User Action (View) -> ViewModel -> Model (Repository/Service) -> ViewModel (updates state) -> View (reflects updated state).
+
+## Key Technologies
+
+This project will leverage the following key technologies and packages:
+
+1.  **Firebase:** For backend services including (but not limited to):
+    *   Authentication (Firebase Auth)
+    *   Database (Cloud Firestore or Realtime Database - to be decided based on specific needs per feature)
+    *   Storage (Firebase Storage for files like resumes, workshop images)
+    *   Cloud Functions (for server-side logic if needed)
+2.  **Provider:** For state management, to facilitate the communication between Views and ViewModels in adherence with the MVVM pattern. Provider will be used for dependency injection and managing the lifecycle of ViewModels.
+3.  **go_router:** For declarative routing, ensuring a robust and type-safe navigation system within the application. This will help manage complex navigation flows and deep linking.
+4.  **Stripe:** For processing payments from workshop owners for foreman services. Integration will handle secure payment transactions.

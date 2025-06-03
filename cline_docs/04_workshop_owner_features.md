@@ -16,7 +16,7 @@ This document outlines the key features available to Workshop Owners within the 
 
 ## 4. Payroll Management
 *   **Approve Completed Work:** Verify and approve work sessions completed by foremen.
-*   **Initiate Payments:** Process payments to the system for foreman services (e.g., via integrated payment gateways like Stripe). The system then handles the payment to the foreman.
+*   **Initiate Payments:** Process payments to the system for foreman services via integrated payment gateways like **Stripe**. The system then handles the payment to the foreman.
 
 ## 5. Marketplace
 *   **Order Parts:** Access a dedicated marketplace within the system to browse and order parts and supplies for their workshop.

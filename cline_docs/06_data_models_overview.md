@@ -1,6 +1,6 @@
 # Data Models Overview (High-Level)
 
-This document provides a high-level overview of the key data models within the Workshop-Foreman Management System. These models represent the core entities and relationships that underpin the system's functionality. A detailed Entity-Relationship Diagram (ERD) can be developed in a future phase.
+This document provides a high-level overview of the key data models within the Workshop-Foreman Management System. These models represent the core entities and relationships that underpin the system's functionality. A detailed Entity-Relationship Diagram (ERD) can be developed in a future phase. These entities will primarily be stored and managed using **Firebase Cloud Firestore** (or **Realtime Database**) as the backend database.
 
 ## Key Entities:
 

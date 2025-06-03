@@ -20,7 +20,7 @@ This document outlines the main functional modules that comprise the Workshop-Fo
 
 ## 5. Payroll Module
 *   **Purpose:** Manages the financial transactions related to foreman services.
-*   **Features:** Tracking of completed work sessions, generation of invoices for workshop owners, integration with payment gateways (e.g., Stripe) for workshop payments to the system. (Note: The mechanism for transferring funds from the system to the foreman's personal account is outside the current scope).
+*   **Features:** Tracking of completed work sessions, generation of invoices for workshop owners, integration with payment gateways like **Stripe** for workshop payments to the system. (Note: The mechanism for transferring funds from the system to the foreman's personal account is outside the current scope).
 
 ## 6. Marketplace Module
 *   **Purpose:** Provides a platform for workshop owners to order parts and supplies.
