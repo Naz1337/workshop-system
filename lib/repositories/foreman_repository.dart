@@ -21,12 +21,12 @@ class ForemanRepository {
     return null;
   }
 
-  Future<void> addForeman(Foreman foreman) async {
+  Future<void> createForemanProfile(Foreman foreman) async {
     try {
-      await _firestoreService.addDocument(
-          collectionPath: _collectionPath, data: foreman.toMap());
+      await _firestoreService.setDocument(
+          collectionPath: _collectionPath, documentId: foreman.id, data: foreman.toMap());
     } catch (e) {
-      print('Error adding foreman: $e');
+      print('Error creating foreman profile: $e');
     }
   }
 

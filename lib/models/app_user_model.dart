@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class User {
+class AppUser {
   final String id; // user_id
   final String name;
   final String email;
   final String contactNumber;
   final String role; // e.g., 'workshop_owner', 'foreman'
 
-  User({
+  AppUser({
     required this.id,
     required this.name,
     required this.email,
@@ -15,8 +15,8 @@ class User {
     required this.role,
   });
 
-  factory User.fromMap(Map<String, dynamic> map, String documentId) {
-    return User(
+  factory AppUser.fromMap(Map<String, dynamic> map, String documentId) {
+    return AppUser(
       id: documentId,
       name: map['name'] ?? '',
       email: map['email'] ?? '',
@@ -34,14 +34,14 @@ class User {
     };
   }
 
-  User copyWith({
+  AppUser copyWith({
     String? id,
     String? name,
     String? email,
     String? contactNumber,
     String? role,
   }) {
-    return User(
+    return AppUser(
       id: id ?? this.id,
       name: name ?? this.name,
       email: email ?? this.email,

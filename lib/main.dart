@@ -6,9 +6,12 @@ import 'package:go_router/go_router.dart';
 
 // Import your services and repositories
 import 'services/firestore_service.dart';
+import 'services/auth_service.dart'; // Import AuthService
 import 'repositories/user_repository.dart';
 import 'repositories/foreman_repository.dart';
 import 'repositories/workshop_repository.dart';
+import 'models/app_user_model.dart'; // Import AppUser model
+import 'config/router.dart'; // Import the router configuration
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +24,9 @@ void main() async {
         // Service Providers
         Provider<FirestoreService>(
           create: (_) => FirestoreService(),
+        ),
+        Provider<AuthService>(
+          create: (_) => AuthService(),
         ),
 
         // Repository Providers (dependent on FirestoreService)
@@ -44,47 +50,16 @@ void main() async {
   );
 }
 
-final GoRouter _router = GoRouter(
-  routes: <RouteBase>[
-    GoRoute(
-      path: '/',
-      builder: (BuildContext context, GoRouterState state) {
-        return const MyHomePage(title: 'Flutter Demo Home Page');
-      },
-    ),
-  ],
-);
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      routerConfig: _router,
+      routerConfig: router, // Use the global router instance
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
-      ),
-    );
-  }
-}
-
-// Example MyHomePage (content doesn't matter for this step)
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
-      body: const Center(
-        child: Text(
-          'Providers are set up!',
-        ),
       ),
     );
   }

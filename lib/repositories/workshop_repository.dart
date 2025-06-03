@@ -21,12 +21,12 @@ class WorkshopRepository {
     return null;
   }
 
-  Future<void> addWorkshop(Workshop workshop) async {
+  Future<void> createWorkshop(Workshop workshop) async {
     try {
-      await _firestoreService.addDocument(
-          collectionPath: _collectionPath, data: workshop.toMap());
+      await _firestoreService.setDocument(
+          collectionPath: _collectionPath, documentId: workshop.id, data: workshop.toMap());
     } catch (e) {
-      print('Error adding workshop: $e');
+      print('Error creating workshop: $e');
     }
   }
 

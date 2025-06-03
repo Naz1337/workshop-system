@@ -32,6 +32,10 @@ class FirestoreService {
     return await _db.collection(collectionPath).add(data);
   }
 
+  Future<void> setDocument({required String collectionPath, required String documentId, required Map<String, dynamic> data}) async {
+    await _db.collection(collectionPath).doc(documentId).set(data);
+  }
+
   Future<void> updateDocument({required String collectionPath, required String documentId, required Map<String, dynamic> data}) async {
     await _db.collection(collectionPath).doc(documentId).update(data);
   }

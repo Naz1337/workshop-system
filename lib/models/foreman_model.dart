@@ -7,6 +7,7 @@ class Foreman {
   final String foremanEmail;
   final String foremanBankAccountNo;
   final int yearsOfExperience;
+  final String? resumeUrl; // Added resumeUrl
   final String? ratingId; // Or a full Rating object / average rating
 
   Foreman({
@@ -16,6 +17,7 @@ class Foreman {
     required this.foremanEmail,
     required this.foremanBankAccountNo,
     required this.yearsOfExperience,
+    this.resumeUrl, // Added resumeUrl
     this.ratingId,
   });
 
@@ -27,6 +29,7 @@ class Foreman {
       foremanEmail: map['foremanEmail'] ?? '',
       foremanBankAccountNo: map['foremanBankAccountNo'] ?? '',
       yearsOfExperience: map['yearsOfExperience'] ?? 0,
+      resumeUrl: map['resumeUrl'], // Added resumeUrl
       ratingId: map['ratingId'],
     );
   }
@@ -38,6 +41,7 @@ class Foreman {
       'foremanEmail': foremanEmail,
       'foremanBankAccountNo': foremanBankAccountNo,
       'yearsOfExperience': yearsOfExperience,
+      'resumeUrl': resumeUrl, // Added resumeUrl
       'ratingId': ratingId,
     };
   }
@@ -49,6 +53,7 @@ class Foreman {
     String? foremanEmail,
     String? foremanBankAccountNo,
     int? yearsOfExperience,
+    String? resumeUrl, // Added resumeUrl
     String? ratingId,
   }) {
     return Foreman(
@@ -58,6 +63,7 @@ class Foreman {
       foremanEmail: foremanEmail ?? this.foremanEmail,
       foremanBankAccountNo: foremanBankAccountNo ?? this.foremanBankAccountNo,
       yearsOfExperience: yearsOfExperience ?? this.yearsOfExperience,
+      resumeUrl: resumeUrl ?? this.resumeUrl, // Added resumeUrl
       ratingId: ratingId ?? this.ratingId,
     );
   }

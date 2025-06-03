@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/user_model.dart';
+import '../models/app_user_model.dart';
 import '../services/firestore_service.dart';
 
 class UserRepository {
@@ -8,12 +8,12 @@ class UserRepository {
 
   UserRepository(this._firestoreService);
 
-  Future<User?> getUser(String userId) async {
+  Future<AppUser?> getUser(String userId) async {
     try {
       DocumentSnapshot doc = await _firestoreService.getDocument(
           collectionPath: _collectionPath, documentId: userId);
       if (doc.exists) {
-        return User.fromMap(doc.data() as Map<String, dynamic>, doc.id);
+        return AppUser.fromMap(doc.data() as Map<String, dynamic>, doc.id);
       }
     } catch (e) {
       print('Error getting user: $e');
@@ -21,16 +21,16 @@ class UserRepository {
     return null;
   }
 
-  Future<void> addUser(User user) async {
+  Future<void> createUserDocument(AppUser user) async {
     try {
-      await _firestoreService.addDocument(
-          collectionPath: _collectionPath, data: user.toMap());
+      await _firestoreService.setDocument(
+          collectionPath: _collectionPath, documentId: user.id, data: user.toMap());
     } catch (e) {
-      print('Error adding user: $e');
+      print('Error creating user document: $e');
     }
   }
 
-  Future<void> updateUser(User user) async {
+  Future<void> updateUser(AppUser user) async {
     try {
       await _firestoreService.updateDocument(
           collectionPath: _collectionPath,
@@ -50,23 +50,23 @@ class UserRepository {
     }
   }
 
-  Stream<User?> streamUser(String userId) {
+  Stream<AppUser?> streamUser(String userId) {
     return _firestoreService
         .streamDocument(collectionPath: _collectionPath, documentId: userId)
         .map((doc) {
       if (doc.exists) {
-        return User.fromMap(doc.data() as Map<String, dynamic>, doc.id);
+        return AppUser.fromMap(doc.data() as Map<String, dynamic>, doc.id);
       }
       return null;
     });
   }
 
-  Stream<List<User>> streamAllUsers() {
+  Stream<List<AppUser>> streamAllUsers() {
     return _firestoreService
         .streamCollection(collectionPath: _collectionPath)
         .map((snapshot) {
       return snapshot.docs
-          .map((doc) => User.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+          .map((doc) => AppUser.fromMap(doc.data() as Map<String, dynamic>, doc.id))
           .toList();
     });
   }
