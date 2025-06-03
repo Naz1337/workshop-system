@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:workshop_system/firebase_options.dart';
 import 'package:provider/provider.dart'; // Import provider package
 import 'package:go_router/go_router.dart';

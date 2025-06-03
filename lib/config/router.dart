@@ -25,6 +25,9 @@ class HomeScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 await Provider.of<AuthService>(context, listen: false).signOut();
+                // ignore: use_build_context_synchronously
+                if (!context.mounted) return;
+                context.go('/welcome');
               },
               child: const Text('Sign Out'),
             ),
