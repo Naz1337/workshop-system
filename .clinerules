@@ -1,0 +1,58 @@
+# Project Architecture Guidelines
+
+## MVVM (Model-View-ViewModel) Adherence
+
+This project strictly follows the Model-View-ViewModel (MVVM) architectural pattern.
+
+### Core Principles:
+1.  **View-ViewModel Relationship:** Each View (UI component/screen) must have one, and only one, corresponding ViewModel.
+2.  **View Responsibility:** Views are responsible for presenting data to the user and capturing user input. They should be as "dumb" as possible, delegating all logic and state management to their ViewModel.
+3.  **ViewModel Responsibility:**
+    *   ViewModels hold the state and presentation logic for their associated View.
+    *   They expose data to the View through observable properties or streams.
+    *   They handle user actions delegated by the View.
+    *   ViewModels interact with the Model layer (Repositories and Services) to fetch and manipulate data.
+4.  **Model Layer Interaction:**
+    *   Views **must not** directly interact with the Model layer (Repositories, Services, Data Sources).
+    *   All communication with the Model layer must be intermediated by a ViewModel.
+5.  **Data Flow:** User Action (View) -> ViewModel -> Model (Repository/Service) -> ViewModel (updates state) -> View (reflects updated state).
+
+## Key Technologies
+
+This project will leverage the following key technologies and packages:
+
+1.  **Firebase:** For backend services including (but not limited to):
+    *   Authentication (Firebase Auth)
+    *   Database (Cloud Firestore or Realtime Database - to be decided based on specific needs per feature)
+    *   Storage (Firebase Storage for files like resumes, workshop images)
+    *   Cloud Functions (for server-side logic if needed)
+2.  **Provider:** For state management, to facilitate the communication between Views and ViewModels in adherence with the MVVM pattern. Provider will be used for dependency injection and managing the lifecycle of ViewModels.
+3.  **go_router:** For declarative routing, ensuring a robust and type-safe navigation system within the application. This will help manage complex navigation flows and deep linking.
+4.  **Stripe:** For processing payments from workshop owners for foreman services. Integration will handle secure payment transactions.
+
+## Navigation Guidelines (go_router)
+
+This project utilizes `go_router` for navigation. It's crucial to understand the difference between `context.go()` and `context.push()` to ensure correct navigation behavior and user experience.
+
+*   **`context.push('/path')`**:
+    *   **Purpose**: Use when navigating to a new screen where the user should be able to return to the previous screen using the system back button or an in-app back button.
+    *   **Behavior**: Adds the new route on top of the current navigation stack, preserving the history.
+    *   **Examples**:
+        *   Navigating from a list to a detail screen.
+        *   Navigating from a welcome/login screen to a registration screen.
+        *   Opening a settings page.
+
+*   **`context.go('/path')`**:
+    *   **Purpose**: Use when navigating to a new screen that should replace the current navigation stack. This is typically for transitions where going back to the previous screen doesn't make logical sense.
+    *   **Behavior**: Replaces the current route in the navigation stack, effectively clearing the history up to that point.
+    *   **Examples**:
+        *   After a successful login, navigating to the main home screen (prevents going back to the login screen).
+        *   After a logout, navigating to the welcome/login screen.
+        *   Switching between major sections of an app where the previous section's state is not relevant.
+
+# Provider and ViewModel Management
+
+## ViewModel Provisioning
+- ViewModels should be provided locally within the View widget that requires them using `ChangeNotifierProvider`.
+- Dependencies required by a ViewModel (e.g., services, repositories) should be obtained using `Provider.of<DependencyType>(context, listen: false)` at the point of ViewModel creation within the View.
+- Avoid declaring ViewModel providers globally in `main.dart` unless the ViewModel manages truly global application state and is used across many disparate parts of the application. Prefer local provision for better scoping and clarity.
