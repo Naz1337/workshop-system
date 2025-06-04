@@ -5,6 +5,7 @@ import 'package:workshop_system/viewmodels/profile/foreman_profile_viewmodel.dar
 import 'package:workshop_system/repositories/foreman_repository.dart';
 import 'package:workshop_system/services/firestore_service.dart';
 import 'package:workshop_system/services/auth_service.dart'; // Import AuthService
+import 'package:workshop_system/repositories/user_repository.dart'; // Import UserRepository
 
 class ForemanDisplayProfileView extends StatelessWidget {
   final String foremanId;
@@ -21,6 +22,8 @@ class ForemanDisplayProfileView extends StatelessWidget {
         create: (context) => ForemanProfileViewModel(
           foremanRepository: Provider.of<ForemanRepository>(context, listen: false),
           firestoreService: Provider.of<FirestoreService>(context, listen: false),
+          authService: Provider.of<AuthService>(context, listen: false), // Pass AuthService
+          userRepository: Provider.of<UserRepository>(context, listen: false), // Pass UserRepository
         )..loadForemanProfile(foremanId),
         child: Consumer<ForemanProfileViewModel>(
           builder: (context, viewModel, child) {

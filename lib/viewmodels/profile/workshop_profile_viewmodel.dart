@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:workshop_system/models/workshop_model.dart';
 import 'package:workshop_system/repositories/workshop_repository.dart';
 import 'package:workshop_system/services/firestore_service.dart'; // Assuming FirestoreService handles general data operations
+import 'package:workshop_system/services/auth_service.dart'; // Import AuthService
+import 'package:workshop_system/repositories/user_repository.dart'; // Import UserRepository
 
 class WorkshopProfileViewModel extends ChangeNotifier {
   final WorkshopRepository _workshopRepository;
   final FirestoreService _firestoreService; // For potential file uploads
+  final AuthService _authService; // Add AuthService
+  final UserRepository _userRepository; // Add UserRepository
 
   Workshop? _workshop;
   bool _isLoading = false;
@@ -18,8 +22,12 @@ class WorkshopProfileViewModel extends ChangeNotifier {
   WorkshopProfileViewModel({
     required WorkshopRepository workshopRepository,
     required FirestoreService firestoreService,
+    required AuthService authService, // Initialize AuthService
+    required UserRepository userRepository, // Initialize UserRepository
   })  : _workshopRepository = workshopRepository,
-        _firestoreService = firestoreService;
+        _firestoreService = firestoreService,
+        _authService = authService, // Assign AuthService
+        _userRepository = userRepository; // Assign UserRepository
 
   Future<void> loadWorkshopProfile(String workshopId) async {
     _isLoading = true;
@@ -30,6 +38,34 @@ class WorkshopProfileViewModel extends ChangeNotifier {
       _workshop = await _workshopRepository.getWorkshop(workshopId);
     } catch (e) {
       _errorMessage = 'Failed to load workshop profile: $e';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> requestAccountDeletion() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final userId = _authService.getCurrentUser()?.uid;
+      if (userId == null) {
+        throw Exception('No authenticated user found.');
+      }
+
+      // Delete workshop specific data first
+      await _workshopRepository.deleteWorkshop(userId);
+      // Delete general user data
+      await _userRepository.deleteUser(userId);
+      // Delete Firebase Auth user
+      await _authService.deleteCurrentUserAccount();
+
+      return true;
+    } on Exception catch (e) {
+      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      return false;
     } finally {
       _isLoading = false;
       notifyListeners();

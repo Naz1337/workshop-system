@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:workshop_system/viewmodels/profile/foreman_profile_viewmodel.dart';
 import 'package:workshop_system/repositories/foreman_repository.dart';
 import 'package:workshop_system/services/firestore_service.dart';
+import 'package:workshop_system/services/auth_service.dart'; // Import AuthService
+import 'package:workshop_system/repositories/user_repository.dart'; // Import UserRepository
+import 'package:go_router/go_router.dart'; // Import go_router
 
 class EditForemanProfileView extends StatefulWidget {
   final String foremanId;
@@ -69,6 +72,45 @@ class _EditForemanProfileViewState extends State<EditForemanProfileView> {
     }
   }
 
+  void _confirmAndDeleteAccount(ForemanProfileViewModel viewModel) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Account'),
+          content: const Text(
+              'Are you sure you want to delete your account? This action is permanent and cannot be undone.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: const Text('Delete'),
+              onPressed: () async {
+                Navigator.of(context).pop(); // Close dialog
+                final success = await viewModel.requestAccountDeletion();
+                if (success) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Account deleted successfully.')),
+                  );
+                  context.go('/welcome'); // Navigate to welcome/login screen
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Failed to delete account: ${viewModel.errorMessage}')),
+                  );
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -79,6 +121,8 @@ class _EditForemanProfileViewState extends State<EditForemanProfileView> {
         create: (context) => ForemanProfileViewModel(
           foremanRepository: Provider.of<ForemanRepository>(context, listen: false),
           firestoreService: Provider.of<FirestoreService>(context, listen: false),
+          authService: Provider.of<AuthService>(context, listen: false), // Pass AuthService
+          userRepository: Provider.of<UserRepository>(context, listen: false), // Pass UserRepository
         )..loadForemanProfile(widget.foremanId),
         child: Consumer<ForemanProfileViewModel>(
           builder: (context, viewModel, child) {
@@ -171,6 +215,17 @@ class _EditForemanProfileViewState extends State<EditForemanProfileView> {
                       child: ElevatedButton(
                         onPressed: () => _saveProfile(viewModel),
                         child: const Text('Save Profile'),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: () => _confirmAndDeleteAccount(viewModel),
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                        child: const Text(
+                          'Delete Account',
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                     ),
                   ],

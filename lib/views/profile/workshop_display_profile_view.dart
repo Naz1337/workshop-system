@@ -5,6 +5,7 @@ import 'package:workshop_system/viewmodels/profile/workshop_profile_viewmodel.da
 import 'package:workshop_system/repositories/workshop_repository.dart';
 import 'package:workshop_system/services/firestore_service.dart';
 import 'package:workshop_system/services/auth_service.dart'; // Import AuthService
+import 'package:workshop_system/repositories/user_repository.dart'; // Import UserRepository
 
 class WorkshopDisplayProfileView extends StatelessWidget {
   final String workshopId;
@@ -21,6 +22,8 @@ class WorkshopDisplayProfileView extends StatelessWidget {
         create: (context) => WorkshopProfileViewModel(
           workshopRepository: Provider.of<WorkshopRepository>(context, listen: false),
           firestoreService: Provider.of<FirestoreService>(context, listen: false),
+          authService: Provider.of<AuthService>(context, listen: false), // Pass AuthService
+          userRepository: Provider.of<UserRepository>(context, listen: false), // Pass UserRepository
         )..loadWorkshopProfile(workshopId),
         child: Consumer<WorkshopProfileViewModel>(
           builder: (context, viewModel, child) {

@@ -51,4 +51,32 @@ class AuthService {
   User? getCurrentUser() {
     return _firebaseAuth.currentUser;
   }
+
+  Future<void> deleteCurrentUserAccount() async {
+    try {
+      await _firebaseAuth.currentUser?.delete();
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        throw Exception('This operation is sensitive and requires recent authentication. Please re-authenticate before trying again.');
+      }
+      throw Exception('Failed to delete account: ${e.message}');
+    } catch (e) {
+      throw Exception('Failed to delete account: ${e.toString()}');
+    }
+  }
+
+  Future<void> reauthenticateUser(String email, String password) async {
+    try {
+      final user = _firebaseAuth.currentUser;
+      if (user == null) {
+        throw Exception('No user is currently signed in.');
+      }
+      AuthCredential credential = EmailAuthProvider.credential(email: email, password: password);
+      await user.reauthenticateWithCredential(credential);
+    } on FirebaseAuthException catch (e) {
+      throw Exception('Re-authentication failed: ${e.message}');
+    } catch (e) {
+      throw Exception('Re-authentication failed: ${e.toString()}');
+    }
+  }
 }

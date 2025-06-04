@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:workshop_system/models/foreman_model.dart';
 import 'package:workshop_system/repositories/foreman_repository.dart';
 import 'package:workshop_system/services/firestore_service.dart';
+import 'package:workshop_system/services/auth_service.dart'; // Import AuthService
+import 'package:workshop_system/repositories/user_repository.dart'; // Import UserRepository
 
 class ForemanProfileViewModel extends ChangeNotifier {
   final ForemanRepository _foremanRepository;
   final FirestoreService _firestoreService;
+  final AuthService _authService; // Add AuthService
+  final UserRepository _userRepository; // Add UserRepository
 
   Foreman? _foreman;
   bool _isLoading = false;
@@ -18,8 +22,12 @@ class ForemanProfileViewModel extends ChangeNotifier {
   ForemanProfileViewModel({
     required ForemanRepository foremanRepository,
     required FirestoreService firestoreService,
+    required AuthService authService, // Initialize AuthService
+    required UserRepository userRepository, // Initialize UserRepository
   })  : _foremanRepository = foremanRepository,
-        _firestoreService = firestoreService;
+        _firestoreService = firestoreService,
+        _authService = authService, // Assign AuthService
+        _userRepository = userRepository; // Assign UserRepository
 
   Future<void> loadForemanProfile(String foremanId) async {
     _isLoading = true;
@@ -101,4 +109,32 @@ class ForemanProfileViewModel extends ChangeNotifier {
   //     notifyListeners();
   //   }
   // }
+
+  Future<bool> requestAccountDeletion() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final userId = _authService.getCurrentUser()?.uid;
+      if (userId == null) {
+        throw Exception('No authenticated user found.');
+      }
+
+      // Delete foreman specific data first
+      await _foremanRepository.deleteForeman(userId);
+      // Delete general user data
+      await _userRepository.deleteUser(userId);
+      // Delete Firebase Auth user
+      await _authService.deleteCurrentUserAccount();
+
+      return true;
+    } on Exception catch (e) {
+      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }
