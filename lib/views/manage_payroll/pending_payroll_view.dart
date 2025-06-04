@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../models/payroll_model.dart';
 import '../../repositories/payroll_repository.dart';
 import '../../viewmodels/manage_payroll/pending_payroll_viewmodel.dart';
-import './salary_detail_view.dart'; // Updated import
+import 'package:go_router/go_router.dart'; // Import go_router
 
 class PendingPayrollView extends StatelessWidget {
   const PendingPayrollView({super.key});
@@ -39,17 +39,16 @@ class PendingPayrollView extends StatelessWidget {
                   subtitle: Text('RM ${payroll.salary.toStringAsFixed(2)}'),
                   trailing: const Icon(Icons.arrow_forward_ios),
                   onTap: () {
-                    // Per go_router guidelines, use context.push for detail pages
-                    // Example: context.push('/manage_payroll/salary_detail', extra: payroll);
-                    // For now, using MaterialPageRoute as go_router setup for this path is not detailed.
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => SalaryDetailView(payroll: payroll),
-                      ),
-                    ).then((_) {
-                      // Refresh list if a payment was made
-                      viewModel.loadPendingPayrolls();
+                    // Use context.push with the new path and pass payroll as extra
+                    context.push<bool>(
+                      '/manage-payroll/salary-detail',
+                      extra: payroll,
+                    ).then((paymentMade) {
+                      // If SalaryDetailView pops with `true` after successful payment,
+                      // then refresh the list.
+                      if (paymentMade == true) {
+                        viewModel.loadPendingPayrolls();
+                      }
                     });
                   },
                 );

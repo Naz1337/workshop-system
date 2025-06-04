@@ -13,6 +13,9 @@ import '../views/profile/edit_workshop_profile_view.dart'; // Import EditWorksho
 import '../views/profile/foreman_display_profile_view.dart'; // Import ForemanDisplayProfileView
 import '../views/profile/workshop_display_profile_view.dart'; // Import WorkshopDisplayProfileView
 import '../views/foreman/workshop_search_view.dart'; // Import WorkshopSearchView
+import '../views/manage_payroll/pending_payroll_view.dart'; // Import PendingPayrollView
+import '../views/manage_payroll/salary_detail_view.dart'; // Import SalaryDetailView
+import '../models/payroll_model.dart'; // For Payroll type
 
 final GoRouter router = GoRouter(
   routes: <RouteBase>[
@@ -58,6 +61,29 @@ final GoRouter router = GoRouter(
       path: '/home', // This will now be the main menu
       builder: (BuildContext context, GoRouterState state) {
         return const MainMenuView();
+      },
+    ),
+    // New Payroll Routes
+    GoRoute(
+      path: '/manage-payroll/pending',
+      name: 'pendingPayrolls',
+      builder: (BuildContext context, GoRouterState state) {
+        return const PendingPayrollView();
+      },
+    ),
+    GoRoute(
+      path: '/manage-payroll/salary-detail',
+      name: 'salaryDetail',
+      builder: (BuildContext context, GoRouterState state) {
+        if (state.extra != null && state.extra is Payroll) {
+          final Payroll payroll = state.extra as Payroll;
+          return SalaryDetailView(payroll: payroll);
+        } else {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Error')),
+            body: const Center(child: Text('Error: Payroll data not provided.')),
+          );
+        }
       },
     ),
     GoRoute(
