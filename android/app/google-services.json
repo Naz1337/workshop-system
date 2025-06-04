@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "611881565155",
+    "project_id": "sep-project-44cb1",
+    "storage_bucket": "sep-project-44cb1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:611881565155:android:c8f39b286dd38583d53ed6",
+        "android_client_info": {
+          "package_name": "com.example.workshop_system"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmGAicevJJ0Yntxi9YKwH8vQV2Wk4bVU8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
