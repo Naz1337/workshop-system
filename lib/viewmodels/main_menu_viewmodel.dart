@@ -101,6 +101,10 @@ class MainMenuViewModel extends ChangeNotifier {
     // This will be handled by go_router in the View
   }
 
+  void navigateToWorkshopSearch(BuildContext context) {
+    context.push('/foreman/search-workshops');
+  }
+
   void goToWhitelistedForemen() {
     // This will be handled by go_router in the View
   }

@@ -13,6 +13,7 @@ import '../views/profile/edit_foreman_profile_view.dart'; // Import EditForemanP
 import '../views/profile/edit_workshop_profile_view.dart'; // Import EditWorkshopProfileView
 import '../views/profile/foreman_display_profile_view.dart'; // Import ForemanDisplayProfileView
 import '../views/profile/workshop_display_profile_view.dart'; // Import WorkshopDisplayProfileView
+import '../views/foreman/workshop_search_view.dart'; // Import WorkshopSearchView
 
 final GoRouter router = GoRouter(
   routes: <RouteBase>[
@@ -22,6 +23,12 @@ final GoRouter router = GoRouter(
         final authService = Provider.of<AuthService>(context, listen: false);
         // If user is not logged in, redirect to welcome. Otherwise, redirect to main menu.
         return authService.getCurrentUser() == null ? '/welcome' : '/home';
+      },
+    ),
+    GoRoute(
+      path: '/foreman/search-workshops',
+      builder: (BuildContext context, GoRouterState state) {
+        return const WorkshopSearchView();
       },
     ),
     GoRoute(

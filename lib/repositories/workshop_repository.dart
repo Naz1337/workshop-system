@@ -70,4 +70,39 @@ class WorkshopRepository {
           .toList();
     });
   }
+
+  Future<List<Workshop>> searchWorkshops({String? query}) async {
+    try {
+      List<QueryCondition> conditions = [];
+      if (query != null && query.isNotEmpty) {
+        // For a basic search, we'll search by workshopName.
+        // Firestore's `where` clause for string matching is prefix-based.
+        // To implement a "contains" search, you'd typically need a third-party search service
+        // or a more complex setup with Cloud Functions and a dedicated search index.
+        // For now, we'll do a starts-with search on workshopName.
+        conditions.add(QueryCondition(
+          field: 'workshopName',
+          operator: QueryOperator.isGreaterThanOrEqualTo,
+          value: query,
+        ));
+        conditions.add(QueryCondition(
+          field: 'workshopName',
+          operator: QueryOperator.isLessThanOrEqualTo,
+          value: query + '\uf8ff',
+        ));
+      }
+
+      QuerySnapshot snapshot = await _firestoreService.getCollection(
+        collectionPath: _collectionPath,
+        conditions: conditions,
+      );
+
+      return snapshot.docs
+          .map((doc) => Workshop.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+          .toList();
+    } catch (e) {
+      print('Error searching workshops: $e');
+      return [];
+    }
+  }
 }

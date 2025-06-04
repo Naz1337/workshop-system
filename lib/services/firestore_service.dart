@@ -1,30 +1,91 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+enum QueryOperator {
+  isEqualTo,
+  isNotEqualTo,
+  isLessThan,
+  isLessThanOrEqualTo,
+  isGreaterThan,
+  isGreaterThanOrEqualTo,
+  arrayContains,
+  arrayContainsAny,
+  whereIn,
+  whereNotIn,
+  isNull,
+}
+
+class QueryCondition {
+  final String field;
+  final QueryOperator operator;
+  final dynamic value;
+
+  QueryCondition({required this.field, required this.operator, this.value});
+}
+
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
-
-  // Helper class for query conditions (e.g., where, orderBy)
-  // This is a placeholder and would need to be defined elsewhere
-  // class QueryCondition {
-  //   final String field;
-  //   final dynamic value;
-  //   final QueryOp operator; // e.g., ==, <, >, <=, >=
-  //   QueryCondition(this.field, this.value, this.operator);
-  // }
-  // enum QueryOp { equal, lessThan, greaterThan, lessThanOrEqual, greaterThanOrEqual }
 
   Future<DocumentSnapshot> getDocument({required String collectionPath, required String documentId}) async {
     return await _db.collection(collectionPath).doc(documentId).get();
   }
 
-  Future<QuerySnapshot> getCollection({required String collectionPath, List<dynamic>? conditions}) async {
-    // Placeholder for conditions. Actual implementation would parse QueryCondition objects.
+  Future<QuerySnapshot> getCollection({
+    required String collectionPath,
+    List<QueryCondition>? conditions,
+    String? orderByField,
+    bool descending = false,
+    int? limit,
+  }) async {
     Query query = _db.collection(collectionPath);
-    // Example: if (conditions != null) {
-    //   for (var condition in conditions) {
-    //     query = query.where(condition.field, isEqualTo: condition.value);
-    //   }
-    // }
+
+    if (conditions != null) {
+      for (var condition in conditions) {
+        switch (condition.operator) {
+          case QueryOperator.isEqualTo:
+            query = query.where(condition.field, isEqualTo: condition.value);
+            break;
+          case QueryOperator.isNotEqualTo:
+            query = query.where(condition.field, isNotEqualTo: condition.value);
+            break;
+          case QueryOperator.isLessThan:
+            query = query.where(condition.field, isLessThan: condition.value);
+            break;
+          case QueryOperator.isLessThanOrEqualTo:
+            query = query.where(condition.field, isLessThanOrEqualTo: condition.value);
+            break;
+          case QueryOperator.isGreaterThan:
+            query = query.where(condition.field, isGreaterThan: condition.value);
+            break;
+          case QueryOperator.isGreaterThanOrEqualTo:
+            query = query.where(condition.field, isGreaterThanOrEqualTo: condition.value);
+            break;
+          case QueryOperator.arrayContains:
+            query = query.where(condition.field, arrayContains: condition.value);
+            break;
+          case QueryOperator.arrayContainsAny:
+            query = query.where(condition.field, arrayContainsAny: condition.value);
+            break;
+          case QueryOperator.whereIn:
+            query = query.where(condition.field, whereIn: condition.value);
+            break;
+          case QueryOperator.whereNotIn:
+            query = query.where(condition.field, whereNotIn: condition.value);
+            break;
+          case QueryOperator.isNull:
+            query = query.where(condition.field, isNull: condition.value);
+            break;
+        }
+      }
+    }
+
+    if (orderByField != null) {
+      query = query.orderBy(orderByField, descending: descending);
+    }
+
+    if (limit != null) {
+      query = query.limit(limit);
+    }
+
     return await query.get();
   }
 
@@ -44,14 +105,63 @@ class FirestoreService {
     await _db.collection(collectionPath).doc(documentId).delete();
   }
 
-  Stream<QuerySnapshot> streamCollection({required String collectionPath, List<dynamic>? conditions}) {
-    // Placeholder for conditions. Actual implementation would parse QueryCondition objects.
+  Stream<QuerySnapshot> streamCollection({
+    required String collectionPath,
+    List<QueryCondition>? conditions,
+    String? orderByField,
+    bool descending = false,
+    int? limit,
+  }) {
     Query query = _db.collection(collectionPath);
-    // Example: if (conditions != null) {
-    //   for (var condition in conditions) {
-    //     query = query.where(condition.field, isEqualTo: condition.value);
-    //   }
-    // }
+
+    if (conditions != null) {
+      for (var condition in conditions) {
+        switch (condition.operator) {
+          case QueryOperator.isEqualTo:
+            query = query.where(condition.field, isEqualTo: condition.value);
+            break;
+          case QueryOperator.isNotEqualTo:
+            query = query.where(condition.field, isNotEqualTo: condition.value);
+            break;
+          case QueryOperator.isLessThan:
+            query = query.where(condition.field, isLessThan: condition.value);
+            break;
+          case QueryOperator.isLessThanOrEqualTo:
+            query = query.where(condition.field, isLessThanOrEqualTo: condition.value);
+            break;
+          case QueryOperator.isGreaterThan:
+            query = query.where(condition.field, isGreaterThan: condition.value);
+            break;
+          case QueryOperator.isGreaterThanOrEqualTo:
+            query = query.where(condition.field, isGreaterThanOrEqualTo: condition.value);
+            break;
+          case QueryOperator.arrayContains:
+            query = query.where(condition.field, arrayContains: condition.value);
+            break;
+          case QueryOperator.arrayContainsAny:
+            query = query.where(condition.field, arrayContainsAny: condition.value);
+            break;
+          case QueryOperator.whereIn:
+            query = query.where(condition.field, whereIn: condition.value);
+            break;
+          case QueryOperator.whereNotIn:
+            query = query.where(condition.field, whereNotIn: condition.value);
+            break;
+          case QueryOperator.isNull:
+            query = query.where(condition.field, isNull: condition.value);
+            break;
+        }
+      }
+    }
+
+    if (orderByField != null) {
+      query = query.orderBy(orderByField, descending: descending);
+    }
+
+    if (limit != null) {
+      query = query.limit(limit);
+    }
+
     return query.snapshots();
   }
 

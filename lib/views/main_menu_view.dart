@@ -60,12 +60,6 @@ class MainMenuView extends StatelessWidget {
                             if (viewModel.isForeman) ...[
                               _buildMenuItem(
                                 context,
-                                'Browse Workshops',
-                                () => context.push('/workshops'),
-                              ),
-                              const SizedBox(height: 16.0),
-                              _buildMenuItem(
-                                context,
                                 'Available Now',
                                 () => context.push('/workshops/available'),
                               ),
@@ -74,6 +68,12 @@ class MainMenuView extends StatelessWidget {
                                 context,
                                 'My Applications',
                                 () => context.push('/foreman/applications/pending'),
+                              ),
+                              const SizedBox(height: 16.0),
+                              _buildMenuItem(
+                                context,
+                                'Search Workshops',
+                                () => viewModel.navigateToWorkshopSearch(context),
                               ),
                             ],
                             if (viewModel.isWorkshopOwner) ...[
