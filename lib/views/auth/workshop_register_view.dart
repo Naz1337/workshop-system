@@ -20,11 +20,11 @@ class _WorkshopRegisterViewState extends State<WorkshopRegisterView> {
   final TextEditingController _confirmPasswordController = TextEditingController();
   final TextEditingController _workshopAddressController = TextEditingController();
   final TextEditingController _contactInfoController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _servicesOfferedController = TextEditingController();
   final TextEditingController _paymentTermsController = TextEditingController();
   final TextEditingController _operatingHourStartController = TextEditingController();
   final TextEditingController _operatingHourEndController = TextEditingController();
+  final TextEditingController _typeOfWorkshopController = TextEditingController(); // New controller
 
 
   @override
@@ -35,7 +35,6 @@ class _WorkshopRegisterViewState extends State<WorkshopRegisterView> {
     _confirmPasswordController.dispose();
     _workshopAddressController.dispose();
     _contactInfoController.dispose();
-    _descriptionController.dispose();
     _servicesOfferedController.dispose();
     _paymentTermsController.dispose();
     _operatingHourStartController.dispose();
@@ -96,12 +95,6 @@ class _WorkshopRegisterViewState extends State<WorkshopRegisterView> {
                     ),
                     const SizedBox(height: 10),
                     TextField(
-                      controller: _descriptionController,
-                      decoration: const InputDecoration(labelText: 'Description'),
-                      maxLines: 3,
-                    ),
-                    const SizedBox(height: 10),
-                    TextField(
                       controller: _servicesOfferedController,
                       decoration: const InputDecoration(labelText: 'Services Offered (comma-separated)'),
                     ),
@@ -120,6 +113,11 @@ class _WorkshopRegisterViewState extends State<WorkshopRegisterView> {
                       controller: _operatingHourEndController,
                       decoration: const InputDecoration(labelText: 'Operating Hour End (e.g., 17:00)'),
                     ),
+                    const SizedBox(height: 10), // Add SizedBox for spacing
+                    TextField( // New TextField for Type of Workshop
+                      controller: _typeOfWorkshopController,
+                      decoration: const InputDecoration(labelText: 'Type of Workshop'),
+                    ),
                     const SizedBox(height: 20),
                     if (viewModel.isLoading)
                       const CircularProgressIndicator()
@@ -133,11 +131,11 @@ class _WorkshopRegisterViewState extends State<WorkshopRegisterView> {
                             confirmPassword: _confirmPasswordController.text,
                             workshopAddress: _workshopAddressController.text,
                             contactInfo: _contactInfoController.text,
-                            description: _descriptionController.text,
                             servicesOffered: _servicesOfferedController.text,
                             paymentTerms: _paymentTermsController.text,
                             operatingHourStart: _operatingHourStartController.text,
                             operatingHourEnd: _operatingHourEndController.text,
+                            typeOfWorkshop: _typeOfWorkshopController.text, // Pass the new value
                           );
                           if (viewModel.errorMessage == null) {
                             context.go('/home'); // Navigate on successful registration

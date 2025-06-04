@@ -54,25 +54,36 @@ class WorkshopSearchView extends StatelessWidget {
                         itemCount: viewModel.workshops.length,
                         itemBuilder: (context, index) {
                           final workshop = viewModel.workshops[index];
-                          return Card(
-                            margin: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    workshop.workshopName ?? 'N/A',
-                                    style: Theme.of(context).textTheme.titleLarge,
-                                  ),
+                          return InkWell(
+                            onTap: () {
+                              if (workshop.id != null) {
+                                viewModel.selectWorkshop(context, workshop.id!);
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Workshop ID is missing, cannot navigate.')),
+                                );
+                              }
+                            },
+                            child: Card(
+                              margin: const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      workshop.workshopName ?? 'N/A',
+                                      style: Theme.of(context).textTheme.titleLarge,
+                                    ),
                                   const SizedBox(height: 4.0),
                                   Text('Type: ${workshop.typeOfWorkshop}'),
                                   Text('Address: ${workshop.address ?? 'N/A'}'),
                                   Text('Contact: ${workshop.workshopContactNumber ?? 'N/A'}'),
                                   // Add more details as needed
-                                ],
-                              ),
-                            ),
+                                ], // This closes the children list
+                              ), // This closes the Column widget
+                            ), // This closes the Padding widget
+                          ), // This closes the Card widget
                           );
                         },
                       ),

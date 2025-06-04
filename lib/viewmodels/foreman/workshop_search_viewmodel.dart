@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart'; // Required for BuildContext
+import 'package:go_router/go_router.dart'; // Required for context.push
 import 'package:workshop_system/models/workshop_model.dart';
 import 'package:workshop_system/repositories/workshop_repository.dart';
 
@@ -44,5 +46,9 @@ class WorkshopSearchViewModel extends ChangeNotifier {
   void onSearchQueryChanged(String query) {
     searchQuery = query;
     _searchWorkshops();
+  }
+
+  void selectWorkshop(BuildContext context, String workshopId) {
+    context.push('/profile/workshop/$workshopId');
   }
 }

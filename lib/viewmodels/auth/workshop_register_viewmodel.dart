@@ -26,11 +26,11 @@ class WorkshopRegisterViewModel extends ChangeNotifier {
     required String confirmPassword,
     required String workshopAddress,
     required String contactInfo,
-    required String description,
     required String servicesOffered,
     required String paymentTerms,
     required String operatingHourStart,
     required String operatingHourEnd,
+    required String typeOfWorkshop, // Add this new parameter
   }) async {
     _isLoading = true;
     _errorMessage = null;
@@ -62,11 +62,16 @@ class WorkshopRegisterViewModel extends ChangeNotifier {
         final Workshop workshop = Workshop(
           id: userId, // Use user ID as workshop ID
           ownerId: userId,
-          typeOfWorkshop: workshopName, // Using workshop name as type for simplicity
+          typeOfWorkshop: typeOfWorkshop, // Use the actual type from the new input
           serviceProvided: servicesOffered.split(',').map((s) => s.trim()).toList(),
           paymentTerms: paymentTerms,
           operatingHourStart: operatingHourStart,
           operatingHourEnd: operatingHourEnd,
+          workshopName: workshopName, // Denormalize workshop name from user input
+          address: workshopAddress,
+          workshopContactNumber: contactInfo,
+          workshopEmail: email, // Use registration email as workshop email
+          // facilities will be null as it's out of scope
         );
         await _workshopRepository.createWorkshop(workshop);
       }

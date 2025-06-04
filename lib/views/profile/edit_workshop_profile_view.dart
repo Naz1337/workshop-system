@@ -113,14 +113,18 @@ class _EditWorkshopProfileViewState extends State<EditWorkshopProfileView> {
               onPressed: () async {
                 Navigator.of(context).pop(); // Close dialog
                 final success = await viewModel.requestAccountDeletion();
+
+                if (!mounted) return; // Guard against using context after async gap
+
                 if (success) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Account deleted successfully.')),
                   );
+                  if (!mounted) return; // Guard again before navigation
                   context.go('/welcome'); // Navigate to welcome/login screen
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Failed to delete account: ${viewModel.errorMessage}')),
+                    SnackBar(content: Text('Failed to delete account: ${viewModel.errorMessage ?? "Unknown error"}')),
                   );
                 }
               },
