@@ -54,7 +54,7 @@ class MainMenuView extends StatelessWidget {
                             _buildMenuItem(
                               context,
                               'My Profile',
-                              () => context.push('/profile'),
+                              () => viewModel.navigateToUserProfile(context),
                             ),
                             const SizedBox(height: 16.0),
                             if (viewModel.isForeman) ...[

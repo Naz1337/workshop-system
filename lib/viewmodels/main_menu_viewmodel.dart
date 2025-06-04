@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:workshop_system/models/app_user_model.dart';
 import 'package:workshop_system/repositories/user_repository.dart';
 import 'package:workshop_system/services/auth_service.dart';
@@ -31,33 +33,56 @@ class MainMenuViewModel extends ChangeNotifier {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
+    debugPrint('[MainMenuViewModel] Initializing user role...');
 
     try {
       final firebaseUser = _authService.getCurrentUser();
       if (firebaseUser != null) {
+        debugPrint('[MainMenuViewModel] Firebase User ID: ${firebaseUser.uid}');
         _currentUser = await _userRepository.getUser(firebaseUser.uid);
+        debugPrint('[MainMenuViewModel] AppUser data: ${_currentUser?.toMap().toString()}');
+
         if (_currentUser != null) {
-          _isForeman = _currentUser!.role == 'Foreman';
-          _isWorkshopOwner = _currentUser!.role == 'WorkshopOwner';
+          debugPrint('[MainMenuViewModel] AppUser role from DB: ${_currentUser!.role}');
+          final userRole = _currentUser!.role.toLowerCase(); // Convert to lowercase
+          debugPrint('[MainMenuViewModel] AppUser role (lowercase): $userRole');
+          _isForeman = userRole == 'foreman';
+          _isWorkshopOwner = userRole == 'workshop_owner';
+          debugPrint('[MainMenuViewModel] isForeman: $_isForeman, isWorkshopOwner: $_isWorkshopOwner');
         } else {
-          _errorMessage = "User data not found.";
+          _errorMessage = "User data not found in Firestore for UID: ${firebaseUser.uid}.";
+          debugPrint('[MainMenuViewModel] $_errorMessage');
         }
       } else {
-        _errorMessage = "No authenticated user found.";
+        _errorMessage = "No authenticated Firebase user found.";
+        debugPrint('[MainMenuViewModel] $_errorMessage');
       }
     } catch (e) {
       _errorMessage = "Failed to load user data: ${e.toString()}";
-      debugPrint('Error initializing user role: $e');
+      debugPrint('[MainMenuViewModel] Error initializing user role: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
+      debugPrint('[MainMenuViewModel] User role initialization complete. isLoading: $_isLoading');
     }
   }
 
   // Navigation methods (to be called from the View)
-  void goToProfile() {
-    // This will be handled by go_router in the View
-    // The ViewModel just exposes the intention
+  void navigateToUserProfile(BuildContext context) {
+    if (_currentUser == null) {
+      debugPrint("Error: Current user is null, cannot navigate to profile.");
+      // Optionally, show a snackbar or dialog to the user
+      return;
+    }
+
+    if (_isForeman) {
+      context.push('/profile/foreman/${_currentUser!.id}');
+    } else if (_isWorkshopOwner) {
+      context.push('/profile/workshop/${_currentUser!.id}');
+    } else {
+      debugPrint("Error: User role not determined, cannot navigate to profile.");
+      // Optionally, show a snackbar or dialog
+    }
   }
 
   void goToBrowseWorkshops() {

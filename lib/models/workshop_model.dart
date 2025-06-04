@@ -8,7 +8,12 @@ class Workshop {
   final String paymentTerms;
   final String operatingHourStart; // Or DateTime/TimeOfDay
   final String operatingHourEnd;   // Or DateTime/TimeOfDay
-  final String? ratingId; // Or a full Rating object / average rating
+  final String? ratingId;
+  final String? workshopName; // Added workshopName
+  final String? address; // Added address
+  final String? workshopContactNumber; // Added workshopContactNumber
+  final String? workshopEmail; // Added workshopEmail
+  final String? facilities; // Added facilities
 
   Workshop({
     required this.id,
@@ -19,6 +24,11 @@ class Workshop {
     required this.operatingHourStart,
     required this.operatingHourEnd,
     this.ratingId,
+    this.workshopName, // Added workshopName
+    this.address, // Added address
+    this.workshopContactNumber, // Added workshopContactNumber
+    this.workshopEmail, // Added workshopEmail
+    this.facilities, // Added facilities
   });
 
   factory Workshop.fromMap(Map<String, dynamic> map, String documentId) {
@@ -31,6 +41,11 @@ class Workshop {
       operatingHourStart: map['operatingHourStart'] ?? '',
       operatingHourEnd: map['operatingHourEnd'] ?? '',
       ratingId: map['ratingId'],
+      workshopName: map['workshopName'], // Added workshopName
+      address: map['address'], // Added address
+      workshopContactNumber: map['workshopContactNumber'], // Added workshopContactNumber
+      workshopEmail: map['workshopEmail'], // Added workshopEmail
+      facilities: map['facilities'], // Added facilities
     );
   }
 
@@ -43,6 +58,11 @@ class Workshop {
       'operatingHourStart': operatingHourStart,
       'operatingHourEnd': operatingHourEnd,
       'ratingId': ratingId,
+      'workshopName': workshopName, // Added workshopName
+      'address': address, // Added address
+      'workshopContactNumber': workshopContactNumber, // Added workshopContactNumber
+      'workshopEmail': workshopEmail, // Added workshopEmail
+      'facilities': facilities, // Added facilities
     };
   }
 
@@ -55,6 +75,11 @@ class Workshop {
     String? operatingHourStart,
     String? operatingHourEnd,
     String? ratingId,
+    String? workshopName, // Added workshopName
+    String? address, // Added address
+    String? workshopContactNumber, // Added workshopContactNumber
+    String? workshopEmail, // Added workshopEmail
+    String? facilities, // Added facilities
   }) {
     return Workshop(
       id: id ?? this.id,
@@ -65,6 +90,11 @@ class Workshop {
       operatingHourStart: operatingHourStart ?? this.operatingHourStart,
       operatingHourEnd: operatingHourEnd ?? this.operatingHourEnd,
       ratingId: ratingId ?? this.ratingId,
+      workshopName: workshopName ?? this.workshopName, // Added workshopName
+      address: address ?? this.address, // Added address
+      workshopContactNumber: workshopContactNumber ?? this.workshopContactNumber, // Added workshopContactNumber
+      workshopEmail: workshopEmail ?? this.workshopEmail, // Added workshopEmail
+      facilities: facilities ?? this.facilities, // Added facilities
     );
   }
 }

@@ -9,6 +9,8 @@ import '../views/auth/login_view.dart';
 import '../views/auth/foreman_register_view.dart';
 import '../views/auth/workshop_register_view.dart';
 import '../views/main_menu_view.dart'; // Import MainMenuView
+import '../views/profile/foreman_profile_view.dart'; // Import ForemanProfileView
+import '../views/profile/workshop_profile_view.dart'; // Import WorkshopProfileView
 
 final GoRouter router = GoRouter(
   routes: <RouteBase>[
@@ -48,6 +50,20 @@ final GoRouter router = GoRouter(
       path: '/home', // This will now be the main menu
       builder: (BuildContext context, GoRouterState state) {
         return const MainMenuView();
+      },
+    ),
+    GoRoute(
+      path: '/profile/foreman/:foremanId',
+      builder: (BuildContext context, GoRouterState state) {
+        final foremanId = state.pathParameters['foremanId']!;
+        return ForemanProfileView(foremanId: foremanId);
+      },
+    ),
+    GoRoute(
+      path: '/profile/workshop/:workshopId',
+      builder: (BuildContext context, GoRouterState state) {
+        final workshopId = state.pathParameters['workshopId']!;
+        return WorkshopProfileView(workshopId: workshopId);
       },
     ),
     GoRoute(

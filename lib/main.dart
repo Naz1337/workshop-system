@@ -43,8 +43,6 @@ void main() async {
           update: (context, firestoreService, previousWorkshopRepository) =>
               WorkshopRepository(firestoreService),
         ),
-        
-        // We will add ChangeNotifierProviders for ViewModels here later
       ],
       child: const MyApp(), // Your root application widget
     ),

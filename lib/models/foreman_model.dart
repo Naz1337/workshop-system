@@ -7,8 +7,10 @@ class Foreman {
   final String foremanEmail;
   final String foremanBankAccountNo;
   final int yearsOfExperience;
-  final String? resumeUrl; // Added resumeUrl
-  final String? ratingId; // Or a full Rating object / average rating
+  final String? resumeUrl;
+  final String? ratingId;
+  final String? pastExperienceDetails; // Added pastExperienceDetails
+  final String? skills; // Added skills
 
   Foreman({
     required this.id,
@@ -17,8 +19,10 @@ class Foreman {
     required this.foremanEmail,
     required this.foremanBankAccountNo,
     required this.yearsOfExperience,
-    this.resumeUrl, // Added resumeUrl
+    this.resumeUrl,
     this.ratingId,
+    this.pastExperienceDetails, // Added pastExperienceDetails
+    this.skills, // Added skills
   });
 
   factory Foreman.fromMap(Map<String, dynamic> map, String documentId) {
@@ -29,8 +33,10 @@ class Foreman {
       foremanEmail: map['foremanEmail'] ?? '',
       foremanBankAccountNo: map['foremanBankAccountNo'] ?? '',
       yearsOfExperience: map['yearsOfExperience'] ?? 0,
-      resumeUrl: map['resumeUrl'], // Added resumeUrl
+      resumeUrl: map['resumeUrl'],
       ratingId: map['ratingId'],
+      pastExperienceDetails: map['pastExperienceDetails'], // Added pastExperienceDetails
+      skills: map['skills'], // Added skills
     );
   }
 
@@ -41,8 +47,10 @@ class Foreman {
       'foremanEmail': foremanEmail,
       'foremanBankAccountNo': foremanBankAccountNo,
       'yearsOfExperience': yearsOfExperience,
-      'resumeUrl': resumeUrl, // Added resumeUrl
+      'resumeUrl': resumeUrl,
       'ratingId': ratingId,
+      'pastExperienceDetails': pastExperienceDetails, // Added pastExperienceDetails
+      'skills': skills, // Added skills
     };
   }
 
@@ -53,8 +61,10 @@ class Foreman {
     String? foremanEmail,
     String? foremanBankAccountNo,
     int? yearsOfExperience,
-    String? resumeUrl, // Added resumeUrl
+    String? resumeUrl,
     String? ratingId,
+    String? pastExperienceDetails, // Added pastExperienceDetails
+    String? skills, // Added skills
   }) {
     return Foreman(
       id: id ?? this.id,
@@ -63,8 +73,10 @@ class Foreman {
       foremanEmail: foremanEmail ?? this.foremanEmail,
       foremanBankAccountNo: foremanBankAccountNo ?? this.foremanBankAccountNo,
       yearsOfExperience: yearsOfExperience ?? this.yearsOfExperience,
-      resumeUrl: resumeUrl ?? this.resumeUrl, // Added resumeUrl
+      resumeUrl: resumeUrl ?? this.resumeUrl,
       ratingId: ratingId ?? this.ratingId,
+      pastExperienceDetails: pastExperienceDetails ?? this.pastExperienceDetails, // Added pastExperienceDetails
+      skills: skills ?? this.skills, // Added skills
     );
   }
 }

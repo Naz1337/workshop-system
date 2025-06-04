@@ -49,3 +49,10 @@ This project utilizes `go_router` for navigation. It's crucial to understand the
         *   After a successful login, navigating to the main home screen (prevents going back to the login screen).
         *   After a logout, navigating to the welcome/login screen.
         *   Switching between major sections of an app where the previous section's state is not relevant.
+
+# Provider and ViewModel Management
+
+## ViewModel Provisioning
+- ViewModels should be provided locally within the View widget that requires them using `ChangeNotifierProvider`.
+- Dependencies required by a ViewModel (e.g., services, repositories) should be obtained using `Provider.of<DependencyType>(context, listen: false)` at the point of ViewModel creation within the View.
+- Avoid declaring ViewModel providers globally in `main.dart` unless the ViewModel manages truly global application state and is used across many disparate parts of the application. Prefer local provision for better scoping and clarity.
