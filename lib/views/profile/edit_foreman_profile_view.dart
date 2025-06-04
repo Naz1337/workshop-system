@@ -93,14 +93,21 @@ class _EditForemanProfileViewState extends State<EditForemanProfileView> {
               onPressed: () async {
                 Navigator.of(context).pop(); // Close dialog
                 final success = await viewModel.requestAccountDeletion();
+
+                // Check if the widget is still mounted before using its context
+                if (!mounted) return;
+
                 if (success) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Account deleted successfully.')),
                   );
-                  context.go('/welcome'); // Navigate to welcome/login screen
+                  // Ensure context is still valid for navigation as well
+                  if (mounted) {
+                    context.go('/welcome'); // Navigate to welcome/login screen
+                  }
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Failed to delete account: ${viewModel.errorMessage}')),
+                    SnackBar(content: Text('Failed to delete account: ${viewModel.errorMessage ?? "Unknown error"}')),
                   );
                 }
               },
