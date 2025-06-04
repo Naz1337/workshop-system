@@ -27,7 +27,6 @@ class _EditWorkshopProfileViewState extends State<EditWorkshopProfileView> {
   late TextEditingController _addressController;
   late TextEditingController _workshopContactNumberController;
   late TextEditingController _workshopEmailController;
-  late TextEditingController _facilitiesController;
 
   @override
   void initState() {
@@ -41,7 +40,6 @@ class _EditWorkshopProfileViewState extends State<EditWorkshopProfileView> {
     _addressController = TextEditingController();
     _workshopContactNumberController = TextEditingController();
     _workshopEmailController = TextEditingController();
-    _facilitiesController = TextEditingController();
   }
 
   @override
@@ -55,7 +53,6 @@ class _EditWorkshopProfileViewState extends State<EditWorkshopProfileView> {
     _addressController.dispose();
     _workshopContactNumberController.dispose();
     _workshopEmailController.dispose();
-    _facilitiesController.dispose();
     super.dispose();
   }
 
@@ -71,7 +68,6 @@ class _EditWorkshopProfileViewState extends State<EditWorkshopProfileView> {
       _addressController.text = workshop.address ?? '';
       _workshopContactNumberController.text = workshop.workshopContactNumber ?? '';
       _workshopEmailController.text = workshop.workshopEmail ?? '';
-      _facilitiesController.text = workshop.facilities ?? '';
     }
   }
 
@@ -87,7 +83,6 @@ class _EditWorkshopProfileViewState extends State<EditWorkshopProfileView> {
         address: _addressController.text,
         workshopContactNumber: _workshopContactNumberController.text,
         workshopEmail: _workshopEmailController.text,
-        facilities: _facilitiesController.text,
       );
     }
   }
@@ -254,13 +249,6 @@ class _EditWorkshopProfileViewState extends State<EditWorkshopProfileView> {
                       controller: _workshopEmailController,
                       decoration: const InputDecoration(labelText: 'Email'),
                       keyboardType: TextInputType.emailAddress,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _facilitiesController,
-                      decoration: const InputDecoration(labelText: 'Facilities'),
-                      maxLines: 3,
-                      keyboardType: TextInputType.multiline,
                     ),
                     const SizedBox(height: 24),
                     Center(

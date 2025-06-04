@@ -71,7 +71,6 @@ class WorkshopRegisterViewModel extends ChangeNotifier {
           address: workshopAddress,
           workshopContactNumber: contactInfo,
           workshopEmail: email, // Use registration email as workshop email
-          // facilities will be null as it's out of scope
         );
         await _workshopRepository.createWorkshop(workshop);
       }

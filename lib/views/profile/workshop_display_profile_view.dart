@@ -64,8 +64,6 @@ class WorkshopDisplayProfileView extends StatelessWidget {
                   Text('Contact Number: ${workshop.workshopContactNumber ?? 'N/A'}', style: Theme.of(context).textTheme.bodyLarge),
                   const SizedBox(height: 8),
                   Text('Email: ${workshop.workshopEmail ?? 'N/A'}', style: Theme.of(context).textTheme.bodyLarge),
-                  const SizedBox(height: 8),
-                  Text('Facilities: ${workshop.facilities ?? 'N/A'}', style: Theme.of(context).textTheme.bodyLarge),
                   const SizedBox(height: 24),
                   if (isOwner)
                     Center(

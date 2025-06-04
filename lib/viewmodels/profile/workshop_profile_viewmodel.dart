@@ -82,7 +82,6 @@ class WorkshopProfileViewModel extends ChangeNotifier {
     String? address,
     String? workshopContactNumber,
     String? workshopEmail,
-    String? facilities,
   }) async {
     if (_workshop == null) {
       _errorMessage = 'No workshop profile loaded to update.';
@@ -105,7 +104,6 @@ class WorkshopProfileViewModel extends ChangeNotifier {
         address: address,
         workshopContactNumber: workshopContactNumber,
         workshopEmail: workshopEmail,
-        facilities: facilities,
       );
 
       await _workshopRepository.updateWorkshop(updatedWorkshop);
