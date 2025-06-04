@@ -104,7 +104,7 @@ class WorkshopRepository {
         conditions.add(QueryCondition(
           field: 'workshopName',
           operator: QueryOperator.isLessThanOrEqualTo,
-          value: query + '\uf8ff',
+          value: '$query\uf8ff',
         ));
       }
 

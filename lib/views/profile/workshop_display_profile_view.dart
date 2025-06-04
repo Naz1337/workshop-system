@@ -10,7 +10,7 @@ import 'package:workshop_system/repositories/user_repository.dart'; // Import Us
 class WorkshopDisplayProfileView extends StatelessWidget {
   final String workshopId;
 
-  const WorkshopDisplayProfileView({Key? key, required this.workshopId}) : super(key: key);
+  const WorkshopDisplayProfileView({super.key, required this.workshopId});
 
   @override
   Widget build(BuildContext context) {

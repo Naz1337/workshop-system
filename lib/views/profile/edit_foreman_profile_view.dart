@@ -10,7 +10,7 @@ import 'package:go_router/go_router.dart'; // Import go_router
 class EditForemanProfileView extends StatefulWidget {
   final String foremanId;
 
-  const EditForemanProfileView({Key? key, required this.foremanId}) : super(key: key);
+  const EditForemanProfileView({super.key, required this.foremanId});
 
   @override
   State<EditForemanProfileView> createState() => _EditForemanProfileViewState();

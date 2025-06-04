@@ -56,14 +56,8 @@ class WorkshopSearchView extends StatelessWidget {
                           final workshop = viewModel.workshops[index];
                           return InkWell(
                             onTap: () {
-                              if (workshop.id != null) {
-                                viewModel.selectWorkshop(context, workshop.id!);
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Workshop ID is missing, cannot navigate.')),
-                                );
-                              }
-                            },
+                              viewModel.selectWorkshop(context, workshop.id!);
+                                                        },
                             child: Card(
                               margin: const EdgeInsets.symmetric(vertical: 8.0),
                               child: Padding(

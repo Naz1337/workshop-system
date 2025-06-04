@@ -10,7 +10,7 @@ import 'package:workshop_system/repositories/user_repository.dart'; // Import Us
 class ForemanDisplayProfileView extends StatelessWidget {
   final String foremanId;
 
-  const ForemanDisplayProfileView({Key? key, required this.foremanId}) : super(key: key);
+  const ForemanDisplayProfileView({super.key, required this.foremanId});
 
   @override
   Widget build(BuildContext context) {

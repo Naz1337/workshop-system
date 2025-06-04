@@ -10,7 +10,7 @@ import 'package:go_router/go_router.dart'; // Import go_router
 class EditWorkshopProfileView extends StatefulWidget {
   final String workshopId;
 
-  const EditWorkshopProfileView({Key? key, required this.workshopId}) : super(key: key);
+  const EditWorkshopProfileView({super.key, required this.workshopId});
 
   @override
   State<EditWorkshopProfileView> createState() => _EditWorkshopProfileViewState();
