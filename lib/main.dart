@@ -39,9 +39,9 @@ void main() async {
           update: (context, firestoreService, previousForemanRepository) =>
               ForemanRepository(firestoreService),
         ),
-        ProxyProvider<FirestoreService, WorkshopRepository>(
-          update: (context, firestoreService, previousWorkshopRepository) =>
-              WorkshopRepository(firestoreService),
+        ProxyProvider2<FirestoreService, UserRepository, WorkshopRepository>(
+          update: (context, firestoreService, userRepository, previousWorkshopRepository) =>
+              WorkshopRepository(firestoreService, userRepository),
         ),
       ],
       child: const MyApp(), // Your root application widget

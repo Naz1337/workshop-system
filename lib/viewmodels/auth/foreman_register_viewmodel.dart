@@ -53,7 +53,7 @@ class ForemanRegisterViewModel extends ChangeNotifier {
           name: fullName,
           email: email,
           contactNumber: contactInfo,
-          role: 'Foreman',
+          role: 'foreman',
         );
         await _userRepository.createUserDocument(appUser);
 

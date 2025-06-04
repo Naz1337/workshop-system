@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/workshop_model.dart';
 import '../services/firestore_service.dart';
+import '../repositories/user_repository.dart'; // Import UserRepository
 
 class WorkshopRepository {
   final FirestoreService _firestoreService;
+  final UserRepository _userRepository; // Add UserRepository
   final String _collectionPath = 'workshops';
 
-  WorkshopRepository(this._firestoreService);
+  WorkshopRepository(this._firestoreService, this._userRepository); // Update constructor
 
   Future<Workshop?> getWorkshop(String workshopId) async {
     try {
@@ -23,6 +25,13 @@ class WorkshopRepository {
 
   Future<void> createWorkshop(Workshop workshop) async {
     try {
+      // Fetch owner's name and assign to workshopName before saving
+      if (workshop.ownerId != null) {
+        final owner = await _userRepository.getUser(workshop.ownerId!);
+        if (owner != null) {
+          workshop = workshop.copyWith(workshopName: owner.name);
+        }
+      }
       await _firestoreService.setDocument(
           collectionPath: _collectionPath, documentId: workshop.id, data: workshop.toMap());
     } catch (e) {
@@ -32,6 +41,13 @@ class WorkshopRepository {
 
   Future<void> updateWorkshop(Workshop workshop) async {
     try {
+      // Fetch owner's name and assign to workshopName before updating
+      if (workshop.ownerId != null) {
+        final owner = await _userRepository.getUser(workshop.ownerId!);
+        if (owner != null) {
+          workshop = workshop.copyWith(workshopName: owner.name);
+        }
+      }
       await _firestoreService.updateDocument(
           collectionPath: _collectionPath,
           documentId: workshop.id,

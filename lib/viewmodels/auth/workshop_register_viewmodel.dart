@@ -54,7 +54,7 @@ class WorkshopRegisterViewModel extends ChangeNotifier {
           name: workshopName, // Using workshop name as user name for simplicity
           email: email,
           contactNumber: contactInfo,
-          role: 'WorkshopOwner',
+          role: 'workshop_owner',
         );
         await _userRepository.createUserDocument(appUser);
 

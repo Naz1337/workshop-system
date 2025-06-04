@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:workshop_system/repositories/workshop_repository.dart';
+import 'package:workshop_system/repositories/user_repository.dart'; // Import UserRepository
 import 'package:workshop_system/services/firestore_service.dart';
 import 'package:workshop_system/viewmodels/foreman/workshop_search_viewmodel.dart';
 
@@ -12,7 +13,8 @@ class WorkshopSearchView extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => WorkshopSearchViewModel(
         workshopRepository: WorkshopRepository(
-          FirestoreService(),
+          Provider.of<FirestoreService>(context, listen: false),
+          Provider.of<UserRepository>(context, listen: false),
         ),
       ),
       child: Consumer<WorkshopSearchViewModel>(
