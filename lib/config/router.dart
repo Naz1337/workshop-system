@@ -9,8 +9,10 @@ import '../views/auth/login_view.dart';
 import '../views/auth/foreman_register_view.dart';
 import '../views/auth/workshop_register_view.dart';
 import '../views/main_menu_view.dart'; // Import MainMenuView
-import '../views/profile/foreman_profile_view.dart'; // Import ForemanProfileView
-import '../views/profile/workshop_profile_view.dart'; // Import WorkshopProfileView
+import '../views/profile/edit_foreman_profile_view.dart'; // Import EditForemanProfileView
+import '../views/profile/edit_workshop_profile_view.dart'; // Import EditWorkshopProfileView
+import '../views/profile/foreman_display_profile_view.dart'; // Import ForemanDisplayProfileView
+import '../views/profile/workshop_display_profile_view.dart'; // Import WorkshopDisplayProfileView
 
 final GoRouter router = GoRouter(
   routes: <RouteBase>[
@@ -56,14 +58,28 @@ final GoRouter router = GoRouter(
       path: '/profile/foreman/:foremanId',
       builder: (BuildContext context, GoRouterState state) {
         final foremanId = state.pathParameters['foremanId']!;
-        return ForemanProfileView(foremanId: foremanId);
+        return ForemanDisplayProfileView(foremanId: foremanId);
+      },
+    ),
+    GoRoute(
+      path: '/profile/foreman/edit/:foremanId', // New route for editing
+      builder: (BuildContext context, GoRouterState state) {
+        final foremanId = state.pathParameters['foremanId']!;
+        return EditForemanProfileView(foremanId: foremanId); // Points to the renamed form
       },
     ),
     GoRoute(
       path: '/profile/workshop/:workshopId',
       builder: (BuildContext context, GoRouterState state) {
         final workshopId = state.pathParameters['workshopId']!;
-        return WorkshopProfileView(workshopId: workshopId);
+        return WorkshopDisplayProfileView(workshopId: workshopId);
+      },
+    ),
+    GoRoute(
+      path: '/profile/workshop/edit/:workshopId', // New route for editing
+      builder: (BuildContext context, GoRouterState state) {
+        final workshopId = state.pathParameters['workshopId']!;
+        return EditWorkshopProfileView(workshopId: workshopId); // Points to the renamed form
       },
     ),
     GoRoute(

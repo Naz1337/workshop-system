@@ -4,16 +4,16 @@ import 'package:workshop_system/viewmodels/profile/workshop_profile_viewmodel.da
 import 'package:workshop_system/repositories/workshop_repository.dart';
 import 'package:workshop_system/services/firestore_service.dart';
 
-class WorkshopProfileView extends StatefulWidget {
+class EditWorkshopProfileView extends StatefulWidget {
   final String workshopId;
 
-  const WorkshopProfileView({Key? key, required this.workshopId}) : super(key: key);
+  const EditWorkshopProfileView({Key? key, required this.workshopId}) : super(key: key);
 
   @override
-  State<WorkshopProfileView> createState() => _WorkshopProfileViewState();
+  State<EditWorkshopProfileView> createState() => _EditWorkshopProfileViewState();
 }
 
-class _WorkshopProfileViewState extends State<WorkshopProfileView> {
+class _EditWorkshopProfileViewState extends State<EditWorkshopProfileView> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _typeOfWorkshopController;
   late TextEditingController _serviceProvidedController;

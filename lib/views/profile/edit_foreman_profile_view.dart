@@ -4,16 +4,16 @@ import 'package:workshop_system/viewmodels/profile/foreman_profile_viewmodel.dar
 import 'package:workshop_system/repositories/foreman_repository.dart';
 import 'package:workshop_system/services/firestore_service.dart';
 
-class ForemanProfileView extends StatefulWidget {
+class EditForemanProfileView extends StatefulWidget {
   final String foremanId;
 
-  const ForemanProfileView({Key? key, required this.foremanId}) : super(key: key);
+  const EditForemanProfileView({Key? key, required this.foremanId}) : super(key: key);
 
   @override
-  State<ForemanProfileView> createState() => _ForemanProfileViewState();
+  State<EditForemanProfileView> createState() => _EditForemanProfileViewState();
 }
 
-class _ForemanProfileViewState extends State<ForemanProfileView> {
+class _EditForemanProfileViewState extends State<EditForemanProfileView> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _emailController;
