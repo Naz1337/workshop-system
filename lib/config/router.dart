@@ -8,35 +8,7 @@ import '../views/auth/welcome_view.dart';
 import '../views/auth/login_view.dart';
 import '../views/auth/foreman_register_view.dart';
 import '../views/auth/workshop_register_view.dart';
-
-// Placeholder for home screen
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Home')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('Welcome! You are logged in.'),
-            ElevatedButton(
-              onPressed: () async {
-                await Provider.of<AuthService>(context, listen: false).signOut();
-                // ignore: use_build_context_synchronously
-                if (!context.mounted) return;
-                context.go('/welcome');
-              },
-              child: const Text('Sign Out'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+import '../views/main_menu_view.dart'; // Import MainMenuView
 
 final GoRouter router = GoRouter(
   routes: <RouteBase>[
@@ -44,6 +16,7 @@ final GoRouter router = GoRouter(
       path: '/',
       redirect: (BuildContext context, GoRouterState state) {
         final authService = Provider.of<AuthService>(context, listen: false);
+        // If user is not logged in, redirect to welcome. Otherwise, redirect to main menu.
         return authService.getCurrentUser() == null ? '/welcome' : '/home';
       },
     ),
@@ -72,9 +45,51 @@ final GoRouter router = GoRouter(
       },
     ),
     GoRoute(
-      path: '/home',
+      path: '/home', // This will now be the main menu
       builder: (BuildContext context, GoRouterState state) {
-        return const HomeScreen();
+        return const MainMenuView();
+      },
+    ),
+    GoRoute(
+      path: '/profile',
+      builder: (BuildContext context, GoRouterState state) {
+        return Scaffold(appBar: AppBar(title: const Text('Profile Page')), body: const Center(child: Text('Profile Page Content')));
+      },
+    ),
+    GoRoute(
+      path: '/workshops',
+      builder: (BuildContext context, GoRouterState state) {
+        return Scaffold(appBar: AppBar(title: const Text('Browse Workshops')), body: const Center(child: Text('Browse Workshops Content')));
+      },
+    ),
+    GoRoute(
+      path: '/workshops/available',
+      builder: (BuildContext context, GoRouterState state) {
+        return Scaffold(appBar: AppBar(title: const Text('Available Workshops')), body: const Center(child: Text('Available Workshops Content')));
+      },
+    ),
+    GoRoute(
+      path: '/foreman/applications/pending',
+      builder: (BuildContext context, GoRouterState state) {
+        return Scaffold(appBar: AppBar(title: const Text('Pending Applications')), body: const Center(child: Text('Pending Applications Content')));
+      },
+    ),
+    GoRoute(
+      path: '/workshop/foremen/requests',
+      builder: (BuildContext context, GoRouterState state) {
+        return Scaffold(appBar: AppBar(title: const Text('Foreman Requests')), body: const Center(child: Text('Foreman Requests Content')));
+      },
+    ),
+    GoRoute(
+      path: '/workshop/foremen/whitelisted',
+      builder: (BuildContext context, GoRouterState state) {
+        return Scaffold(appBar: AppBar(title: const Text('Whitelisted Foremen')), body: const Center(child: Text('Whitelisted Foremen Content')));
+      },
+    ),
+    GoRoute(
+      path: '/workshop/schedule/manage',
+      builder: (BuildContext context, GoRouterState state) {
+        return Scaffold(appBar: AppBar(title: const Text('Manage Schedule')), body: const Center(child: Text('Manage Schedule Content')));
       },
     ),
   ],
