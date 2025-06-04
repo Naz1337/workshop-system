@@ -94,6 +94,12 @@ class MainMenuView extends StatelessWidget {
                                 'Manage Workshop Schedule',
                                 () => context.push('/workshop/schedule/manage'),
                               ),
+                              const SizedBox(height: 16.0), // Add spacing
+                              _buildMenuItem(
+                                context,
+                                'Manage Payroll', // Button text
+                                () => context.push('/manage-payroll/pending'), // Navigation action
+                              ),
                             ],
                           ],
                         ),
