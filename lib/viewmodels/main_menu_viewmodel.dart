@@ -37,8 +37,8 @@ class MainMenuViewModel extends ChangeNotifier {
       if (firebaseUser != null) {
         _currentUser = await _userRepository.getUser(firebaseUser.uid);
         if (_currentUser != null) {
-          _isForeman = _currentUser!.role == 'foreman';
-          _isWorkshopOwner = _currentUser!.role == 'workshop_owner';
+          _isForeman = _currentUser!.role == 'Foreman';
+          _isWorkshopOwner = _currentUser!.role == 'WorkshopOwner';
         } else {
           _errorMessage = "User data not found.";
         }
