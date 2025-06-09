@@ -28,10 +28,7 @@ final GoRouter router = GoRouter(
         return authService.getCurrentUser() == null ? '/welcome' : '/home';
       },
     ),
-    GoRoute(
-      path: '/',
-      redirect: (_, __) => '/pending-payroll',
-    ),
+ 
     GoRoute(
       path: '/foreman/search-workshops',
       builder: (BuildContext context, GoRouterState state) {
