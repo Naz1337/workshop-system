@@ -23,12 +23,6 @@ class PendingPayrollViewModel with ChangeNotifier {
     _loadPayrolls();
   }
 
-  void updateDependencies(PayrollRepository repo, PaymentServiceFactory factory) {
-    _payrollRepo = repo;
-    _paymentServiceFactory = factory;
-    _loadPayrolls();
-  }
-
   void _loadPayrolls() {
     _isLoading = true;
     notifyListeners();

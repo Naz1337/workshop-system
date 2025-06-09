@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:workshop_system/repositories/payroll_repository.dart';
+import 'package:workshop_system/services/payment_api_service.dart';
+import 'package:workshop_system/viewmodels/manage_payroll/pending_payroll_viewmodel.dart';
 
 import '../services/auth_service.dart';
 import '../views/auth/welcome_view.dart';
@@ -68,7 +71,13 @@ final GoRouter router = GoRouter(
     // New Payroll Routes
      GoRoute(
       path: '/pending-payroll',
-      builder: (context, state) => PendingPayrollView(),
+      builder: (context, state) => ChangeNotifierProvider(
+        create: (context) => PendingPayrollViewModel(
+          Provider.of<PayrollRepository>(context, listen: false),
+          Provider.of<PaymentServiceFactory>(context, listen: false),
+        ),
+        child: PendingPayrollView(),
+      ),
     ),
     GoRoute(
       path: '/salary-detail',
@@ -152,4 +161,3 @@ final GoRouter router = GoRouter(
   ],
   
 );
-

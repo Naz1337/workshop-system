@@ -23,7 +23,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  await FirebaseAppCheck.instance.activate();
+  // await FirebaseAppCheck.instance.activate();
 
   runApp(
     MultiProvider(
@@ -52,15 +52,11 @@ void main() async {
           update: (context, firestoreService, userRepository, previousWorkshopRepository) =>
               WorkshopRepository(firestoreService, userRepository),
         ),
+        ProxyProvider<FirestoreService, PayrollRepository>(
+          update: (context, firestoreService, previousPayrollRepository) =>
+              PayrollRepository(firestoreService),
+        ),
         
-         ChangeNotifierProxyProvider2<PayrollRepository, PaymentServiceFactory, PendingPayrollViewModel>(
-          create: (context) => PendingPayrollViewModel(
-        Provider.of<PayrollRepository>(context, listen: false),
-        Provider.of<PaymentServiceFactory>(context, listen: false),
-        ),
-          update: (context, payrollRepo, paymentFactory, viewModel) =>
-          viewModel!..updateDependencies(payrollRepo, paymentFactory),
-        ),
       ],
       child: const MyApp(), // Your root application widget
     ),
@@ -83,5 +79,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-
