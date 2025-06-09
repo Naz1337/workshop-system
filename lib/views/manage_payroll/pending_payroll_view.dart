@@ -1,61 +1,86 @@
 // lib/views/manage_payroll/pending_payroll_view.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../models/payroll_model.dart';
-import '../../repositories/payroll_repository.dart';
+import 'package:workshop_system/services/payment_api_service.dart';
+import 'package:workshop_system/services/payroll_service.dart';
 import '../../viewmodels/manage_payroll/pending_payroll_viewmodel.dart';
-import 'package:go_router/go_router.dart'; // Import go_router
+import '../../models/payroll_model.dart';
+import '../../viewmodels/manage_payroll/salary_detail_viewmodel.dart';
+import 'salary_detail_view.dart';
+
 
 class PendingPayrollView extends StatelessWidget {
-  const PendingPayrollView({super.key});
-
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => PendingPayrollViewModel(
-        payrollRepository: Provider.of<PayrollRepository>(context, listen: false),
-      )..loadPendingPayrolls(),
-      child: Scaffold(
-        appBar: AppBar(title: const Text('Pending Payrolls')),
-        body: Consumer<PendingPayrollViewModel>(
-          builder: (context, viewModel, child) {
-            if (viewModel.isLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (viewModel.error != null) {
-              return Center(child: Text('Error: ${viewModel.error}'));
-            }
-            if (viewModel.payrolls.isEmpty) {
-              return const Center(child: Text('No pending payrolls.'));
-            }
+    
+    return Scaffold(
+      appBar: AppBar(title: const Text('Pending Payroll')),
+      body: Consumer<PendingPayrollViewModel>(
+        builder: (context, viewModel, _) {
+          if (viewModel.isLoading) {
+            return Center(child: CircularProgressIndicator());
+          }
+          
+          if (viewModel.errorMessage != null) {
+            return Center(child: Text(viewModel.errorMessage!));
+          }
+          
+          return ListView.builder(
+            itemCount: viewModel.payrolls.length,
+            itemBuilder: (context, index) {
+              final payroll = viewModel.payrolls[index];
+              return ListTile(
+                title: Text('Foreman: ${payroll.foremanId}'),
+                subtitle: Text('Amount: RM${payroll.amount.toStringAsFixed(2)}'),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.payment),
+                      onPressed: () => _navigateToSalaryDetail(context, payroll),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: () => _confirmDelete(context, payroll),
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
 
-            final items = viewModel.payrolls;
-            return ListView.builder(
-              itemCount: items.length,
-              itemBuilder: (context, index) {
-                final payroll = items[index];
-                return ListTile(
-                  title: Text(payroll.foremanName),
-                  subtitle: Text('RM ${payroll.salary.toStringAsFixed(2)}'),
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                  onTap: () {
-                    // Use context.push with the new path and pass payroll as extra
-                    context.push<bool>(
-                      '/manage-payroll/salary-detail',
-                      extra: payroll,
-                    ).then((paymentMade) {
-                      // If SalaryDetailView pops with `true` after successful payment,
-                      // then refresh the list.
-                      if (paymentMade == true) {
-                        viewModel.loadPendingPayrolls();
-                      }
-                    });
-                  },
-                );
-              },
-            );
-          },
-        ),
+  void _navigateToSalaryDetail(BuildContext context, Payroll payroll) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => SalaryDetailView(payroll: payroll),
+      ),
+    );
+  }
+
+  void _confirmDelete(BuildContext context, Payroll payroll) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Confirm Deletion'),
+        content: Text('Remove this payroll record?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              // Implement soft delete if needed
+              Navigator.pop(context);
+            },
+            child: Text('Delete'),
+          ),
+        ],
       ),
     );
   }

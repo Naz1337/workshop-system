@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:workshop_system/models/payroll_model.dart';
 
 enum QueryOperator {
   isEqualTo,
@@ -168,4 +169,9 @@ class FirestoreService {
   Stream<DocumentSnapshot> streamDocument({required String collectionPath, required String documentId}) {
     return _db.collection(collectionPath).doc(documentId).snapshots();
   }
+  
+  String generateDocumentId(String collectionPath) {
+  return _db.collection(collectionPath).doc().id;
+}
+
 }

@@ -1,44 +1,64 @@
-// lib/models/payroll_model.dart
-import 'package:cloud_firestore/cloud_firestore.dart'; // For Timestamp
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Payroll {
   final String id;
   final String foremanId;
-  final String foremanName;
-  final double salary;
-  final bool isPaid;
-  final DateTime createdAt;
+  final double amount;
+  final double hoursWorked;
+  final String paymentMethod;
+  final String status;
+  final DateTime timestamp;
 
   Payroll({
     required this.id,
     required this.foremanId,
-    required this.foremanName,
-    required this.salary,
-    required this.isPaid,
-    required this.createdAt,
+    required this.amount,
+    required this.hoursWorked,
+    required this.paymentMethod,
+    this.status = 'Pending',
+    required this.timestamp,
   });
 
-  factory Payroll.fromJson(Map<String, dynamic> json) {
+  Payroll copyWith({
+    String? id,
+    String? foremanId,
+    double? amount,
+    double? hoursWorked,
+    String? paymentMethod,
+    String? status,
+    DateTime? timestamp,
+  }) {
     return Payroll(
-      id: json['id'] ?? '', // Ensure ID is present
-      foremanId: json['foremanId'] ?? '',
-      foremanName: json['foremanName'] ?? '',
-      salary: (json['salary'] as num?)?.toDouble() ?? 0.0,
-      isPaid: json['isPaid'] ?? false,
-      createdAt: json['createdAt'] is Timestamp
-          ? (json['createdAt'] as Timestamp).toDate()
-          : DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
+      id: id ?? this.id,
+      foremanId: foremanId ?? this.foremanId,
+      amount: amount ?? this.amount,
+      hoursWorked: hoursWorked ?? this.hoursWorked,
+      paymentMethod: paymentMethod ?? this.paymentMethod,
+      status: status ?? this.status,
+      timestamp: timestamp ?? this.timestamp,
     );
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
-      // 'id': id, // ID is usually the document ID, not stored in the document itself
       'foremanId': foremanId,
-      'foremanName': foremanName,
-      'salary': salary,
-      'isPaid': isPaid,
-      'createdAt': Timestamp.fromDate(createdAt), // Store as Timestamp
+      'amount': amount,
+      'hoursWorked': hoursWorked,
+      'paymentMethod': paymentMethod,
+      'status': status,
+      'timestamp': Timestamp.fromDate(timestamp),
     };
+  }
+
+  factory Payroll.fromMap(String id, Map<String, dynamic> map) {
+    return Payroll(
+      id: id,
+      foremanId: map['foremanId'] ?? '',
+      amount: (map['amount'] as num).toDouble(),
+      hoursWorked: (map['hoursWorked'] as num).toDouble(),
+      paymentMethod: map['paymentMethod'] ?? '',
+      status: map['status'] ?? 'Pending',
+      timestamp: (map['timestamp'] as Timestamp).toDate(),
+    );
   }
 }

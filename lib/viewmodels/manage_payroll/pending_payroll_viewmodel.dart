@@ -1,34 +1,68 @@
-// lib/viewmodels/manage_payroll/pending_payroll_viewmodel.dart
-import 'package:flutter/foundation.dart';
-import '../../models/payroll_model.dart';
+// lib/viewmodels/pending_payroll_viewmodel.dart
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:workshop_system/services/payment_api_service.dart';
+import 'package:workshop_system/services/payroll_service.dart';
 import '../../repositories/payroll_repository.dart';
+import '../../models/payroll_model.dart';
 
-class PendingPayrollViewModel extends ChangeNotifier {
-  final PayrollRepository _payrollRepository;
 
-  PendingPayrollViewModel({required PayrollRepository payrollRepository})
-      : _payrollRepository = payrollRepository;
-
+class PendingPayrollViewModel with ChangeNotifier {
+  late PayrollRepository _payrollRepo;
+  late PaymentServiceFactory _paymentServiceFactory;
   List<Payroll> _payrolls = [];
-  List<Payroll> get payrolls => _payrolls;
-
   bool _isLoading = false;
+  String? _errorMessage;
+
+  List<Payroll> get payrolls => _payrolls;
   bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
 
-  String? _error;
-  String? get error => _error;
+  PendingPayrollViewModel(this._payrollRepo, this._paymentServiceFactory) {
+    _loadPayrolls();
+  }
 
-  Future<void> loadPendingPayrolls() async {
+  void updateDependencies(PayrollRepository repo, PaymentServiceFactory factory) {
+    _payrollRepo = repo;
+    _paymentServiceFactory = factory;
+    _loadPayrolls();
+  }
+
+  void _loadPayrolls() {
     _isLoading = true;
-    _error = null;
-    notifyListeners(); // Notify loading start
-    try {
-      _payrolls = await _payrollRepository.fetchPendingPayrolls();
-    } catch (e) {
-      _error = e.toString();
-    } finally {
+    notifyListeners();
+    
+    _payrollRepo.getPendingPayrolls().listen((payrolls) {
+      _payrolls = payrolls;
       _isLoading = false;
-      notifyListeners(); // Notify loading end and data/error update
+      notifyListeners();
+    }, onError: (error) {
+      _errorMessage = 'Failed to load payrolls: $error';
+      _isLoading = false;
+      notifyListeners();
+    });
+  }
+
+  Future<void> processPayment(Payroll payroll) async {
+    try {
+      final service = _paymentServiceFactory.getService(payroll.paymentMethod);
+      final success = await service.processPayment(
+        amount: payroll.amount,
+        method: payroll.paymentMethod,
+        recipient: payroll.foremanId,
+      );
+
+      if (success) {
+        // Update status in Firestore
+        await _payrollRepo.addPayroll(payroll.copyWith(status: 'Paid'));
+      } else {
+        throw Exception('Payment processing failed');
+      }
+    } on SocketException {
+      throw Exception('Connection error. Please check your network');
+    } catch (e) {
+      throw Exception('Payment failed: ${e.toString()}');
     }
   }
 }

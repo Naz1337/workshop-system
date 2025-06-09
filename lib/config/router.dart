@@ -18,6 +18,7 @@ import '../views/manage_payroll/salary_detail_view.dart'; // Import SalaryDetail
 import '../models/payroll_model.dart'; // For Payroll type
 
 final GoRouter router = GoRouter(
+  initialLocation: '/pending-payroll', // Temporary direct start to test payroll
   routes: <RouteBase>[
     GoRoute(
       path: '/',
@@ -26,6 +27,10 @@ final GoRouter router = GoRouter(
         // If user is not logged in, redirect to welcome. Otherwise, redirect to main menu.
         return authService.getCurrentUser() == null ? '/welcome' : '/home';
       },
+    ),
+    GoRoute(
+      path: '/',
+      redirect: (_, __) => '/pending-payroll',
     ),
     GoRoute(
       path: '/foreman/search-workshops',
@@ -64,27 +69,17 @@ final GoRouter router = GoRouter(
       },
     ),
     // New Payroll Routes
-    GoRoute(
-      path: '/manage-payroll/pending',
-      name: 'pendingPayrolls',
-      builder: (BuildContext context, GoRouterState state) {
-        return const PendingPayrollView();
-      },
+     GoRoute(
+      path: '/pending-payroll',
+      builder: (context, state) => PendingPayrollView(),
     ),
     GoRoute(
-      path: '/manage-payroll/salary-detail',
-      name: 'salaryDetail',
-      builder: (BuildContext context, GoRouterState state) {
-        if (state.extra != null && state.extra is Payroll) {
-          final Payroll payroll = state.extra as Payroll;
-          return SalaryDetailView(payroll: payroll);
-        } else {
-          return Scaffold(
-            appBar: AppBar(title: const Text('Error')),
-            body: const Center(child: Text('Error: Payroll data not provided.')),
-          );
-        }
+      path: '/salary-detail',
+      builder: (context, state) {
+        final payroll = state.extra as Payroll;
+        return SalaryDetailView(payroll: payroll);
       },
+      
     ),
     GoRoute(
       path: '/profile/foreman/:foremanId',
@@ -156,5 +151,8 @@ final GoRouter router = GoRouter(
         return Scaffold(appBar: AppBar(title: const Text('Manage Schedule')), body: const Center(child: Text('Manage Schedule Content')));
       },
     ),
+    
   ],
+  
 );
+
