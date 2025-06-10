@@ -98,7 +98,7 @@ class MainMenuView extends StatelessWidget {
                               _buildMenuItem(
                                 context,
                                 'Manage Payroll', // Button text
-                                () => context.push('/manage-payroll/pending'), // Navigation action
+                                () => context.push('/pending-payroll'), // Navigation action
                               ),
                             ],
                           ],

@@ -1,47 +1,44 @@
 // lib/views/manage_payroll/pending_payroll_view.dart
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:workshop_system/services/payment_api_service.dart';
-import 'package:workshop_system/services/payroll_service.dart';
-import '../../viewmodels/manage_payroll/pending_payroll_viewmodel.dart';
-import '../../models/payroll_model.dart';
-import '../../viewmodels/manage_payroll/salary_detail_viewmodel.dart';
+import 'package:workshop_system/viewmodels/manage_payroll/pending_payroll_viewmodel.dart';
 import 'salary_detail_view.dart';
+import '../../models/foreman_model.dart';
 
-
+/// Displays a list of all foremen with options to process salary payments or delete payrolls.
 class PendingPayrollView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
-      appBar: AppBar(title: const Text('Pending Payroll')),
+      appBar: AppBar(title: const Text('Manage Payroll')),
       body: Consumer<PendingPayrollViewModel>(
         builder: (context, viewModel, _) {
           if (viewModel.isLoading) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
-          
+
           if (viewModel.errorMessage != null) {
             return Center(child: Text(viewModel.errorMessage!));
           }
-          
+
+          if (viewModel.foremen.isEmpty) {
+            return const Center(child: Text('No foremen available.'));
+          }
+
           return ListView.builder(
-            itemCount: viewModel.payrolls.length,
+            itemCount: viewModel.foremen.length,
             itemBuilder: (context, index) {
-              final payroll = viewModel.payrolls[index];
+              final foreman = viewModel.foremen[index];
               return ListTile(
-                title: Text('Foreman: ${payroll.foremanId}'),
-                subtitle: Text('Amount: RM${payroll.amount.toStringAsFixed(2)}'),
+                title: Text('Foreman: ${foreman.foremanName}'),
+                subtitle: Text('Bank Account No: ${foreman.foremanBankAccountNo}'),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
-                      icon: Icon(Icons.payment),
-                      onPressed: () => _navigateToSalaryDetail(context, payroll),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.delete),
-                      onPressed: () => _confirmDelete(context, payroll),
+                      icon: const Icon(Icons.payment),
+                      onPressed: () => _navigateToSalaryDetail(context, foreman),
                     ),
                   ],
                 ),
@@ -53,35 +50,14 @@ class PendingPayrollView extends StatelessWidget {
     );
   }
 
-  void _navigateToSalaryDetail(BuildContext context, Payroll payroll) {
+  /// Navigate to SalaryDetailView with selected foreman
+  void _navigateToSalaryDetail(BuildContext context, Foreman foreman) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => SalaryDetailView(payroll: payroll),
+        builder: (_) => SalaryDetailView(foreman: foreman),
       ),
     );
   }
 
-  void _confirmDelete(BuildContext context, Payroll payroll) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Confirm Deletion'),
-        content: Text('Remove this payroll record?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              // Implement soft delete if needed
-              Navigator.pop(context);
-            },
-            child: Text('Delete'),
-          ),
-        ],
-      ),
-    );
-  }
 }

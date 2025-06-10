@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:workshop_system/models/payroll_model.dart';
+import 'package:workshop_system/models/foreman_model.dart';
+
 
 enum QueryOperator {
   isEqualTo,

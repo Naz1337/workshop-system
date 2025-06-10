@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:workshop_system/models/foreman_model.dart';
 import 'package:workshop_system/repositories/payroll_repository.dart';
 import 'package:workshop_system/services/payment_api_service.dart';
 import 'package:workshop_system/viewmodels/manage_payroll/pending_payroll_viewmodel.dart';
@@ -21,7 +22,7 @@ import '../views/manage_payroll/salary_detail_view.dart'; // Import SalaryDetail
 import '../models/payroll_model.dart'; // For Payroll type
 
 final GoRouter router = GoRouter(
-  initialLocation: '/pending-payroll', // Temporary direct start to test payroll
+  
   routes: <RouteBase>[
     GoRoute(
       path: '/',
@@ -80,13 +81,13 @@ final GoRouter router = GoRouter(
       ),
     ),
     GoRoute(
-      path: '/salary-detail',
-      builder: (context, state) {
-        final payroll = state.extra as Payroll;
-        return SalaryDetailView(payroll: payroll);
-      },
-      
+     path: '/salary-detail',
+     builder: (context, state) {
+        final foreman = state.extra as Foreman;
+        return SalaryDetailView(foreman: foreman); 
+      },  
     ),
+    
     GoRoute(
       path: '/profile/foreman/:foremanId',
       builder: (BuildContext context, GoRouterState state) {

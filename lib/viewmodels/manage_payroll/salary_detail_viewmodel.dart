@@ -4,63 +4,65 @@ import '../../models/payroll_model.dart';
 import '../../services/payment_api_service.dart';
 import 'dart:io';
 
-// ViewModel for salary detail and payment processing
-class SalaryDetailViewModel extends ChangeNotifier {
-  final PayrollRepository _payrollRepo;
-  final PaymentAPIService _paymentService;
-  final Payroll initialPayroll;
 
-  SalaryDetailViewModel({
-    required PayrollRepository payrollRepo,
-    required PaymentAPIService paymentService,
-    required this.initialPayroll,
-  })  : _payrollRepo = payrollRepo,
-        _paymentService = paymentService;
+// ViewModel for salary detail screen using MVVM architecture.
+// Manages payment logic, error handling, and Firestore integration.
+class SalaryDetailViewModel extends ChangeNotifier {
+  final PayrollRepository payrollRepo;
+  PaymentAPIService? paymentService;
+
+  //constuctor
+  SalaryDetailViewModel({required this.payrollRepo,this.paymentService,});
 
   bool _isProcessing = false;
   String? _error;
+
+  // Public getters for UI state binding
   bool get isProcessing => _isProcessing;
   String? get error => _error;
   
-  // Process the payment and update Firestore
-  Future<bool> processPayment(double amount, double hours, String method) async {
+
+  /// Injects the selected payment API service at runtime
+  void setPaymentService(PaymentAPIService service) {
+    paymentService = service;
+    notifyListeners();
+  }
+
+  /// Processes a payment and stores the result in Firestore
+  Future<bool> processPayroll(Payroll payroll) async {
     _isProcessing = true;
     _error = null;
     notifyListeners();
 
     try {
-      final updatedPayroll = initialPayroll.copyWith(
-        amount: amount,
-        hoursWorked: hours,
-        paymentMethod: method,
-        timestamp: DateTime.now(),
-        status: 'Paid',
-      );
-
-      // Call payment API service
-      final paymentSuccess = await _paymentService.processPayment(
-      amount: updatedPayroll.amount,
-      method: updatedPayroll.paymentMethod,
-      recipient: updatedPayroll.foremanId,
-);
-
-      // Check API result
-      if (!paymentSuccess) {
-        _error = 'Payment declined';
+      if (paymentService == null) {
+        _error = 'Payment method not selected.';
         return false;
       }
 
-      // Save updated payroll to Firestore
-      await _payrollRepo.savePayroll(updatedPayroll);
+      final paymentSuccess = await paymentService!.processPayment(
+        amount: payroll.amount,
+        method: payroll.paymentMethod,
+        recipient: payroll.foremanId,
+      );
+
+      if (!paymentSuccess) {
+        _error = 'Payment failed';
+        return false;
+      }
+
+      await payrollRepo.savePayroll(payroll); // Save after payment
       return true;
+      
     } on SocketException {
-      _error = 'Connection error';
+      _error = 'No internet connection';
     } catch (e) {
       _error = 'Unexpected error: $e';
     } finally {
       _isProcessing = false;
       notifyListeners();
     }
+
     return false;
   }
 }
