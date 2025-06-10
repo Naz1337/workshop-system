@@ -52,6 +52,20 @@ class _SalaryDetailFormState extends State<_SalaryDetailForm> {
   Widget build(BuildContext context) {
     final viewModel = context.watch<SalaryDetailViewModel>();
 
+    // Listen for payment status changes and show appropriate feedback
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (viewModel.paymentStatus == PaymentStatus.success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Payment successful!')),
+        );
+        Navigator.pop(context); // Go back
+      } else if (viewModel.paymentStatus == PaymentStatus.failure) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(viewModel.error ?? 'Payment failed.')),
+        );
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(title: Text('Pay ${widget.foreman.foremanName}')),
       body: Padding(
@@ -156,20 +170,8 @@ class _SalaryDetailFormState extends State<_SalaryDetailForm> {
                   status: 'pending',
                 );
 
-                final success = await viewModel.processPayroll(payroll);
-
-                if (success) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Payment successful!')),
-                  );
-                  Navigator.pop(context); // Go back
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content:
-                            Text(viewModel.error ?? 'Payment failed.')),
-                  );
-                }
+                await viewModel.processPayroll(payroll);
+                // UI feedback is now handled by the WidgetsBinding.instance.addPostFrameCallback in the build method
               },
               child: const Text('Confirm'),
             ),

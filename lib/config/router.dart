@@ -22,7 +22,7 @@ import '../views/manage_payroll/salary_detail_view.dart'; // Import SalaryDetail
 import '../models/payroll_model.dart'; // For Payroll type
 
 final GoRouter router = GoRouter(
-  
+  initialLocation: '/pending-payroll', // Temporary direct start to test payroll
   routes: <RouteBase>[
     GoRoute(
       path: '/',
