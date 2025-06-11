@@ -14,21 +14,7 @@ class MySchedulePage extends StatefulWidget {
   State<MySchedulePage> createState() => _MySchedulePageState();
 }
 
-class _MySchedulePageState extends State<MySchedulePage> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
+class _MySchedulePageState extends State<MySchedulePage> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -38,14 +24,8 @@ class _MySchedulePageState extends State<MySchedulePage> with SingleTickerProvid
       )..initialize(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('My Schedule'),
-          bottom: TabBar(
-            controller: _tabController,
-            tabs: const [
-              Tab(text: 'Upcoming'),
-              Tab(text: 'Past'),
-            ],
-          ),
+          title: const Text('MY SCHEDULE'), // Match SRS Figure 3.19
+          centerTitle: true,
         ),
         body: Consumer<MyScheduleViewModel>(
           builder: (context, viewModel, child) {
@@ -78,22 +58,59 @@ class _MySchedulePageState extends State<MySchedulePage> with SingleTickerProvid
               return const Center(child: CircularProgressIndicator());
             }
 
-            return TabBarView(
-              controller: _tabController,
+            return Column(
               children: [
-                _ScheduleList(
-                  schedules: viewModel.upcomingSchedules,
-                  isUpcoming: true,
-                  isCancelling: viewModel.isCancelling,
-                  canCancel: viewModel.canCancelBooking,
-                  onCancel: viewModel.cancelBooking,
+                // Header matching SRS Figure 3.19
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  color: Colors.grey[100],
+                  child: const Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Text(
+                          'Date',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Text(
+                          'Scheduled',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Text(
+                          'Details',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                _ScheduleList(
-                  schedules: viewModel.pastSchedules,
-                  isUpcoming: false,
-                  isCancelling: false,
-                  canCancel: (_) => false,
-                  onCancel: (_) {},
+                
+                // Schedule List
+                Expanded(
+                  child: _buildScheduleList(viewModel),
+                ),
+                
+                // Back Button - Match SRS UI
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        backgroundColor: Colors.grey[300],
+                        foregroundColor: Colors.black,
+                      ),
+                      child: const Text('Back'),
+                    ),
+                  ),
                 ),
               ],
             );
@@ -102,58 +119,76 @@ class _MySchedulePageState extends State<MySchedulePage> with SingleTickerProvid
       ),
     );
   }
-}
 
-class _ScheduleList extends StatelessWidget {
-  final List<Schedule> schedules;
-  final bool isUpcoming;
-  final bool isCancelling;
-  final bool Function(Schedule) canCancel;
-  final Function(String) onCancel;
-
-  const _ScheduleList({
-    required this.schedules,
-    required this.isUpcoming,
-    required this.isCancelling,
-    required this.canCancel,
-    required this.onCancel,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    if (schedules.isEmpty) {
-      return Center(
+  Widget _buildScheduleList(MyScheduleViewModel viewModel) {
+    final allSchedules = viewModel.mySchedules;
+    
+    if (allSchedules.isEmpty) {
+      return const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              isUpcoming ? Icons.event : Icons.history,
-              size: 64,
-              color: Colors.grey,
-            ),
-            const SizedBox(height: 16),
-            Text(isUpcoming ? 'No upcoming schedules' : 'No past schedules'),
+            Icon(Icons.event, size: 64, color: Colors.grey),
+            SizedBox(height: 16),
+            Text('No schedules found'),
+            SizedBox(height: 8),
+            Text('Book your first slot to see it here'),
           ],
         ),
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: schedules.length,
-      itemBuilder: (context, index) {
-        final schedule = schedules[index];
-        return _MyScheduleCard(
-          schedule: schedule,
-          showCancelButton: isUpcoming && canCancel(schedule),
-          isCancelling: isCancelling,
-          onCancel: () => _confirmCancel(context, schedule),
-        );
-      },
+    // Group schedules by upcoming and past
+    final now = DateTime.now();
+    final upcomingSchedules = allSchedules
+        .where((schedule) => schedule.scheduleDate.isAfter(now))
+        .toList();
+    final pastSchedules = allSchedules
+        .where((schedule) => schedule.scheduleDate.isBefore(now))
+        .toList();
+
+    return ListView(
+      children: [
+        // Upcoming Schedules Section
+        if (upcomingSchedules.isNotEmpty) ...[
+          _buildSectionHeader('Upcoming Schedules'),
+          ...upcomingSchedules.map((schedule) => _MyScheduleRow(
+            schedule: schedule,
+            showCancelButton: viewModel.canCancelBooking(schedule),
+            isCancelling: viewModel.isCancelling,
+            onCancel: () => _confirmCancel(context, viewModel, schedule),
+          )),
+        ],
+        
+        // Past Schedules Section
+        if (pastSchedules.isNotEmpty) ...[
+          _buildSectionHeader('Past Schedules'),
+          ...pastSchedules.map((schedule) => _MyScheduleRow(
+            schedule: schedule,
+            showCancelButton: false,
+            isCancelling: false,
+            onCancel: () {},
+          )),
+        ],
+      ],
     );
   }
 
-  void _confirmCancel(BuildContext context, Schedule schedule) {
+  Widget _buildSectionHeader(String title) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          color: Colors.blue,
+        ),
+      ),
+    );
+  }
+
+  void _confirmCancel(BuildContext context, MyScheduleViewModel viewModel, Schedule schedule) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -167,7 +202,7 @@ class _ScheduleList extends StatelessWidget {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              onCancel(schedule.scheduleId);
+              viewModel.cancelBooking(schedule.scheduleId);
             },
             child: const Text('Yes', style: TextStyle(color: Colors.red)),
           ),
@@ -177,13 +212,13 @@ class _ScheduleList extends StatelessWidget {
   }
 }
 
-class _MyScheduleCard extends StatelessWidget {
+class _MyScheduleRow extends StatelessWidget {
   final Schedule schedule;
   final bool showCancelButton;
   final bool isCancelling;
   final VoidCallback onCancel;
 
-  const _MyScheduleCard({
+  const _MyScheduleRow({
     required this.schedule,
     required this.showCancelButton,
     required this.isCancelling,
@@ -192,40 +227,87 @@ class _MyScheduleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '${schedule.scheduleDate.day}/${schedule.scheduleDate.month}/${schedule.scheduleDate.year}',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text('${schedule.startTime.hour}:${schedule.startTime.minute.toString().padLeft(2, '0')} - ${schedule.endTime.hour}:${schedule.endTime.minute.toString().padLeft(2, '0')}'),
-            Text('Day Type: ${schedule.dayType.toString().split('.').last.toUpperCase()}'),
-            Text('Other Foremen: ${schedule.foremanIds.length - 1}'),
-            if (showCancelButton) ...[
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: isCancelling ? null : onCancel,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                  ),
-                  child: isCancelling
-                      ? const CircularProgressIndicator()
-                      : const Text('Cancel Booking'),
-                ),
-              ),
-            ],
-          ],
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: Colors.grey[300]!),
         ),
       ),
+      child: Row(
+        children: [
+          // Date Column
+          Expanded(
+            flex: 2,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _formatDayName(schedule.scheduleDate),
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+                Text(
+                  '${schedule.scheduleDate.day}/${schedule.scheduleDate.month}',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+          
+          // Scheduled Column
+          Expanded(
+            flex: 2,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${_formatTime(schedule.startTime)} - ${_formatTime(schedule.endTime)}',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  schedule.dayType.toString().split('.').last.toUpperCase(),
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+          
+          // Details/Action Column
+          Expanded(
+            flex: 1,
+            child: showCancelButton
+                ? ElevatedButton(
+                    onPressed: isCancelling ? null : onCancel,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      minimumSize: const Size(60, 32),
+                    ),
+                    child: isCancelling
+                        ? const SizedBox(
+                            width: 12,
+                            height: 12,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          )
+                        : const Text('Cancel', style: TextStyle(fontSize: 12)),
+                  )
+                : const Text(
+                    'Completed',
+                    style: TextStyle(fontSize: 12, color: Colors.green),
+                  ),
+          ),
+        ],
+      ),
     );
+  }
+
+  String _formatTime(DateTime time) {
+    return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+  }
+
+  String _formatDayName(DateTime date) {
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    return days[date.weekday - 1];
   }
 }

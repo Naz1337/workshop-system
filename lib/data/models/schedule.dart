@@ -11,7 +11,7 @@ class Schedule {
   final DateTime startTime;
   final DateTime endTime;
   final DayType dayType;
-  final int maxForeman;
+  final int maxForeman; // Fixed at 3 according to SRS
   final int availableSlots;
   final List<String> foremanIds;
   final ScheduleStatus status;
@@ -25,7 +25,7 @@ class Schedule {
     required this.startTime,
     required this.endTime,
     required this.dayType,
-    required this.maxForeman,
+    this.maxForeman = 3, // SRS: Fixed maximum of 3 foremen per slot
     required this.availableSlots,
     required this.foremanIds,
     required this.status,
@@ -44,7 +44,7 @@ class Schedule {
         (e) => e.toString().split('.').last == map['day_type'],
         orElse: () => DayType.morning,
       ),
-      maxForeman: map['max_foreman'] ?? 3,
+      maxForeman: 3, // SRS requirement: Always 3
       availableSlots: map['available_slots'] ?? 0,
       foremanIds: List<String>.from(map['foreman_ids'] ?? []),
       status: ScheduleStatus.values.firstWhere(
@@ -63,7 +63,7 @@ class Schedule {
       'start_time': Timestamp.fromDate(startTime),
       'end_time': Timestamp.fromDate(endTime),
       'day_type': dayType.toString().split('.').last,
-      'max_foreman': maxForeman,
+      'max_foreman': 3, // SRS requirement: Always 3
       'available_slots': availableSlots,
       'foreman_ids': foremanIds,
       'status': status.toString().split('.').last,
@@ -93,12 +93,25 @@ class Schedule {
       startTime: startTime ?? this.startTime,
       endTime: endTime ?? this.endTime,
       dayType: dayType ?? this.dayType,
-      maxForeman: maxForeman ?? this.maxForeman,
+      maxForeman: 3, // Always 3 according to SRS
       availableSlots: availableSlots ?? this.availableSlots,
       foremanIds: foremanIds ?? this.foremanIds,
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
+  }
+
+  // SRS Business Rules Validation
+  bool canAcceptMoreForemen() {
+    return foremanIds.length < 3 && availableSlots > 0;
+  }
+
+  bool isForemanAlreadyBooked(String foremanId) {
+    return foremanIds.contains(foremanId);
+  }
+
+  bool isSlotFull() {
+    return foremanIds.length >= 3 || availableSlots <= 0;
   }
 }

@@ -21,7 +21,8 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
   late TimeOfDay _startTime;
   late TimeOfDay _endTime;
   DayType _dayType = DayType.morning;
-  int _maxForeman = 3;
+  // SRS Requirement: Fixed at 3 foremen per slot - removed slider
+  static const int _maxForeman = 3;
 
   @override
   void initState() {
@@ -40,7 +41,7 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
       ),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Create Schedule'),
+          title: const Text('Add Slot'), // Match SRS UI Figure 3.12
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () => context.pop(),
@@ -48,17 +49,10 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
         ),
         body: Consumer<CreateScheduleViewModel>(
           builder: (context, viewModel, child) {
-            // Show success message and navigate back
+            // Show success message and navigate back - SRS Figure 3.13
             if (viewModel.successMessage != null) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(viewModel.successMessage!),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-                viewModel.clearMessages();
-                context.pop();
+                _showSuccessDialog(context, viewModel.successMessage!);
               });
             }
 
@@ -82,10 +76,10 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Date Selection
+                    // Date Selection - Match SRS UI layout
                     Card(
                       child: ListTile(
-                        title: const Text('Schedule Date'),
+                        title: const Text('Date'),
                         subtitle: Text('${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}'),
                         trailing: const Icon(Icons.calendar_today),
                         onTap: () => _selectDate(context),
@@ -93,14 +87,14 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Time Selection
+                    // Time Selection Row
                     Row(
                       children: [
                         Expanded(
                           child: Card(
                             child: ListTile(
-                              title: const Text('Start Time'),
-                              subtitle: Text(_startTime.format(context)),
+                              title: const Text('Start'),
+                              subtitle: Text(_formatTime(_startTime)),
                               trailing: const Icon(Icons.access_time),
                               onTap: () => _selectStartTime(context),
                             ),
@@ -110,8 +104,8 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
                         Expanded(
                           child: Card(
                             child: ListTile(
-                              title: const Text('End Time'),
-                              subtitle: Text(_endTime.format(context)),
+                              title: const Text('End'),
+                              subtitle: Text(_formatTime(_endTime)),
                               trailing: const Icon(Icons.access_time),
                               onTap: () => _selectEndTime(context),
                             ),
@@ -121,30 +115,26 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Day Type Selection
+                    // Day Type Selection - Match SRS dropdown
                     Card(
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Day Type', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                            RadioListTile<DayType>(
-                              title: const Text('Morning'),
-                              value: DayType.morning,
-                              groupValue: _dayType,
-                              onChanged: (value) => setState(() => _dayType = value!),
-                            ),
-                            RadioListTile<DayType>(
-                              title: const Text('Afternoon'),
-                              value: DayType.afternoon,
-                              groupValue: _dayType,
-                              onChanged: (value) => setState(() => _dayType = value!),
-                            ),
-                            RadioListTile<DayType>(
-                              title: const Text('Evening'),
-                              value: DayType.evening,
-                              groupValue: _dayType,
+                            const Text('Session Type', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            DropdownButtonFormField<DayType>(
+                              value: _dayType,
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
+                                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              ),
+                              items: DayType.values.map((type) {
+                                return DropdownMenuItem(
+                                  value: type,
+                                  child: Text(type.toString().split('.').last.toUpperCase()),
+                                );
+                              }).toList(),
                               onChanged: (value) => setState(() => _dayType = value!),
                             ),
                           ],
@@ -153,22 +143,30 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Max Foreman Selection
+                    // Fixed Foreman Count Display - SRS Rule: Always 3
                     Card(
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Maximum Foremen: $_maxForeman', 
-                                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                            Slider(
-                              value: _maxForeman.toDouble(),
-                              min: 1,
-                              max: 10,
-                              divisions: 9,
-                              label: _maxForeman.toString(),
-                              onChanged: (value) => setState(() => _maxForeman = value.toInt()),
+                            const Text('Maximum Number', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                '$_maxForeman foremen (Fixed)', 
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            const Text(
+                              'Each slot allows maximum 3 foremen as per system rule',
+                              style: TextStyle(fontSize: 12, color: Colors.grey),
                             ),
                           ],
                         ),
@@ -176,15 +174,25 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Create Button
+                    // Save Button - Match SRS UI
                     ElevatedButton(
                       onPressed: viewModel.isLoading ? null : () => _createSchedule(viewModel),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
                       ),
                       child: viewModel.isLoading
-                          ? const CircularProgressIndicator()
-                          : const Text('Create Schedule', style: TextStyle(fontSize: 16)),
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text('Save', style: TextStyle(fontSize: 16)),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    // Cancel Button
+                    TextButton(
+                      onPressed: viewModel.isLoading ? null : () => context.pop(),
+                      child: const Text('Cancel', style: TextStyle(fontSize: 16)),
                     ),
                   ],
                 ),
@@ -194,6 +202,11 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
         ),
       ),
     );
+  }
+
+  // Helper method to format time consistently
+  String _formatTime(TimeOfDay time) {
+    return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -251,8 +264,40 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
         startTime: startDateTime,
         endTime: endDateTime,
         dayType: _dayType,
-        maxForeman: _maxForeman,
+        maxForeman: _maxForeman, // Always 3 as per SRS
       );
     }
+  }
+
+  // Success dialog matching SRS Figure 3.13
+  void _showSuccessDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.check_circle, color: Colors.green, size: 64),
+            const SizedBox(height: 16),
+            const Text(
+              'Data Successfully Saved',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            const Text('New slot was added to the system'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              context.pop(); // Navigate back to schedule overview
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 }
