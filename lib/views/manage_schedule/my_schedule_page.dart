@@ -1,6 +1,7 @@
 // lib/views/manage_schedule/my_schedule_page.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../../data/models/schedule.dart';
 import '../../data/repositories/schedule_repository.dart';
 import '../../viewmodels/manage_schedule/my_schedule_view_model.dart';
@@ -26,6 +27,14 @@ class _MySchedulePageState extends State<MySchedulePage> {
         appBar: AppBar(
           title: const Text('MY SCHEDULE'), // Match SRS Figure 3.19
           centerTitle: true,
+          actions: [
+            // FIXED: Add navigation to book more slots
+            IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: () => context.push('/select-slot/${widget.foremanId}'),
+              tooltip: 'Book New Slot',
+            ),
+          ],
         ),
         body: Consumer<MyScheduleViewModel>(
           builder: (context, viewModel, child) {
@@ -96,22 +105,8 @@ class _MySchedulePageState extends State<MySchedulePage> {
                   child: _buildScheduleList(viewModel),
                 ),
                 
-                // Back Button - Match SRS UI
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        backgroundColor: Colors.grey[300],
-                        foregroundColor: Colors.black,
-                      ),
-                      child: const Text('Back'),
-                    ),
-                  ),
-                ),
+                // FIXED: Bottom navigation bar with multiple options
+                _buildBottomNavigationBar(),
               ],
             );
           },
@@ -120,19 +115,74 @@ class _MySchedulePageState extends State<MySchedulePage> {
     );
   }
 
+  // FIXED: Enhanced bottom navigation bar
+  Widget _buildBottomNavigationBar() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        border: Border(top: BorderSide(color: Colors.grey[300]!)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () => context.push('/select-slot/${widget.foremanId}'),
+                  icon: const Icon(Icons.add),
+                  label: const Text('Book New Slot'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () => context.pop(),
+                  icon: const Icon(Icons.home),
+                  label: const Text('Home'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildScheduleList(MyScheduleViewModel viewModel) {
     final allSchedules = viewModel.mySchedules;
     
     if (allSchedules.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.event, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
-            Text('No schedules found'),
-            SizedBox(height: 8),
-            Text('Book your first slot to see it here'),
+            const Icon(Icons.event, size: 64, color: Colors.grey),
+            const SizedBox(height: 16),
+            const Text('No schedules found'),
+            const SizedBox(height: 8),
+            const Text('Book your first slot to see it here'),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () => context.push('/select-slot/${widget.foremanId}'),
+              icon: const Icon(Icons.add),
+              label: const Text('Book Now'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+              ),
+            ),
           ],
         ),
       );
@@ -151,7 +201,7 @@ class _MySchedulePageState extends State<MySchedulePage> {
       children: [
         // Upcoming Schedules Section
         if (upcomingSchedules.isNotEmpty) ...[
-          _buildSectionHeader('Upcoming Schedules'),
+          _buildSectionHeader('Upcoming Schedules (${upcomingSchedules.length})'),
           ...upcomingSchedules.map((schedule) => _MyScheduleRow(
             schedule: schedule,
             showCancelButton: viewModel.canCancelBooking(schedule),
@@ -162,13 +212,41 @@ class _MySchedulePageState extends State<MySchedulePage> {
         
         // Past Schedules Section
         if (pastSchedules.isNotEmpty) ...[
-          _buildSectionHeader('Past Schedules'),
+          _buildSectionHeader('Past Schedules (${pastSchedules.length})'),
           ...pastSchedules.map((schedule) => _MyScheduleRow(
             schedule: schedule,
             showCancelButton: false,
             isCancelling: false,
             onCancel: () {},
           )),
+        ],
+        
+        // If no upcoming schedules, show prompt to book
+        if (upcomingSchedules.isEmpty && pastSchedules.isNotEmpty) ...[
+          Container(
+            margin: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.blue[50],
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.blue[200]!),
+            ),
+            child: Column(
+              children: [
+                const Text(
+                  'No upcoming schedules',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                const Text('Would you like to book a new slot?'),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () => context.push('/select-slot/${widget.foremanId}'),
+                  child: const Text('Book New Slot'),
+                ),
+              ],
+            ),
+          ),
         ],
       ],
     );
@@ -193,7 +271,17 @@ class _MySchedulePageState extends State<MySchedulePage> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Cancel Booking'),
-        content: const Text('Are you sure you want to cancel this booking?'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Are you sure you want to cancel this booking?'),
+            const SizedBox(height: 8),
+            Text(
+              '${schedule.dayType.toString().split('.').last} slot on ${schedule.scheduleDate.day}/${schedule.scheduleDate.month}/${schedule.scheduleDate.year}',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -204,7 +292,7 @@ class _MySchedulePageState extends State<MySchedulePage> {
               Navigator.of(context).pop();
               viewModel.cancelBooking(schedule.scheduleId);
             },
-            child: const Text('Yes', style: TextStyle(color: Colors.red)),
+            child: const Text('Yes, Cancel', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -227,12 +315,15 @@ class _MyScheduleRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isUpcoming = schedule.scheduleDate.isAfter(DateTime.now());
+    
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(color: Colors.grey[300]!),
         ),
+        color: isUpcoming ? null : Colors.grey[50],
       ),
       child: Row(
         children: [
@@ -244,11 +335,17 @@ class _MyScheduleRow extends StatelessWidget {
               children: [
                 Text(
                   _formatDayName(schedule.scheduleDate),
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  style: TextStyle(
+                    fontSize: 12, 
+                    color: isUpcoming ? Colors.grey : Colors.grey[400],
+                  ),
                 ),
                 Text(
                   '${schedule.scheduleDate.day}/${schedule.scheduleDate.month}',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: isUpcoming ? Colors.black : Colors.grey[600],
+                  ),
                 ),
               ],
             ),
@@ -262,11 +359,17 @@ class _MyScheduleRow extends StatelessWidget {
               children: [
                 Text(
                   '${_formatTime(schedule.startTime)} - ${_formatTime(schedule.endTime)}',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: isUpcoming ? Colors.black : Colors.grey[600],
+                  ),
                 ),
                 Text(
                   schedule.dayType.toString().split('.').last.toUpperCase(),
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  style: TextStyle(
+                    fontSize: 12, 
+                    color: isUpcoming ? Colors.grey : Colors.grey[400],
+                  ),
                 ),
               ],
             ),
@@ -292,9 +395,13 @@ class _MyScheduleRow extends StatelessWidget {
                           )
                         : const Text('Cancel', style: TextStyle(fontSize: 12)),
                   )
-                : const Text(
-                    'Completed',
-                    style: TextStyle(fontSize: 12, color: Colors.green),
+                : Text(
+                    isUpcoming ? 'Confirmed' : 'Completed',
+                    style: TextStyle(
+                      fontSize: 12, 
+                      color: isUpcoming ? Colors.green : Colors.grey[500],
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
           ),
         ],

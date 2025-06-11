@@ -41,6 +41,14 @@ class _SlotSelectionPageState extends State<SlotSelectionPage> with SingleTicker
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Schedule'), // Match SRS UI Figure 3.14
+          actions: [
+            // FIXED: Add navigation to My Schedule
+            IconButton(
+              icon: const Icon(Icons.schedule),
+              onPressed: () => context.push('/my-schedule/${widget.foremanId}'),
+              tooltip: 'My Schedule',
+            ),
+          ],
           bottom: TabBar(
             controller: _tabController,
             tabs: const [
@@ -88,10 +96,53 @@ class _SlotSelectionPageState extends State<SlotSelectionPage> with SingleTicker
                 Expanded(
                   child: _buildSlotsList(viewModel),
                 ),
+                
+                // FIXED: Add bottom navigation bar
+                _buildBottomNavigationBar(),
               ],
             );
           },
         ),
+      ),
+    );
+  }
+
+  // FIXED: Add bottom navigation bar for better UX
+  Widget _buildBottomNavigationBar() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        border: Border(top: BorderSide(color: Colors.grey[300]!)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: () => context.push('/my-schedule/${widget.foremanId}'),
+              icon: const Icon(Icons.schedule),
+              label: const Text('My Schedule'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: () => context.pop(),
+              icon: const Icon(Icons.home),
+              label: const Text('Home'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.grey,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -272,7 +323,7 @@ class _SlotSelectionPageState extends State<SlotSelectionPage> with SingleTicker
     );
   }
 
-  // SRS Success Dialog - Figure 3.16
+  // FIXED: Updated success dialog with proper navigation
   void _showSuccessDialog(BuildContext context, String message) {
     showDialog(
       context: context,
@@ -295,9 +346,16 @@ class _SlotSelectionPageState extends State<SlotSelectionPage> with SingleTicker
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
+              // FIXED: Proper navigation to My Schedule
               context.push('/my-schedule/${widget.foremanId}');
             },
-            child: const Text('OK'),
+            child: const Text('Go to My Schedule'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Stay Here'),
           ),
         ],
       ),
@@ -329,6 +387,10 @@ class _SlotSelectionPageState extends State<SlotSelectionPage> with SingleTicker
               // SRS: System displays available slots (E1 flow)
               _showAlternativeSlots(context, viewModel);
             },
+            child: const Text('Show Alternatives'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
             child: const Text('OK'),
           ),
         ],
@@ -361,7 +423,7 @@ class _SlotSelectionPageState extends State<SlotSelectionPage> with SingleTicker
               // SRS E2: Redirect to "My Schedule" page
               context.push('/my-schedule/${widget.foremanId}');
             },
-            child: const Text('OK'),
+            child: const Text('Go to My Schedule'),
           ),
         ],
       ),

@@ -28,45 +28,45 @@ class ScheduleRepository {
             .toList());
   }
 
-  // Get available schedules for foreman booking - Enhanced with SRS rules
+  // FIXED: Simplified query to avoid index issues
   Stream<List<Schedule>> getAvailableSchedules() {
     return FirebaseFirestore.instance
         .collection(_collection)
         .where('status', isEqualTo: 'available')
-        .where('available_slots', isGreaterThan: 0)
-        .orderBy('schedule_date', descending: false)
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => Schedule.fromMap(doc.data(), doc.id))
-            .toList());
+            .where((schedule) => schedule.availableSlots > 0) // Filter in memory
+            .toList()..sort((a, b) => a.scheduleDate.compareTo(b.scheduleDate))); // Sort in memory
   }
 
-  // Get schedules booked by a specific foreman
+  // FIXED: Simplified query for foreman schedules
   Stream<List<Schedule>> getSchedulesByForeman(String foremanId) {
     return FirebaseFirestore.instance
         .collection(_collection)
         .where('foreman_ids', arrayContains: foremanId)
-        .orderBy('schedule_date', descending: false)
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => Schedule.fromMap(doc.data(), doc.id))
-            .toList());
+            .toList()..sort((a, b) => a.scheduleDate.compareTo(b.scheduleDate))); // Sort in memory
   }
 
-  // SRS Business Rule: Check if foreman already has a booking for the same date
+  // FIXED: Simplified check for existing bookings
   Future<bool> hasBookingOnDate(String foremanId, DateTime date) async {
     try {
-      final startOfDay = DateTime(date.year, date.month, date.day);
-      final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59);
-
+      // Get all foreman's bookings and check in memory
       final snapshot = await FirebaseFirestore.instance
           .collection(_collection)
           .where('foreman_ids', arrayContains: foremanId)
-          .where('schedule_date', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
-          .where('schedule_date', isLessThanOrEqualTo: Timestamp.fromDate(endOfDay))
           .get();
 
-      return snapshot.docs.isNotEmpty;
+      for (var doc in snapshot.docs) {
+        final schedule = Schedule.fromMap(doc.data(), doc.id);
+        if (_isSameDay(schedule.scheduleDate, date)) {
+          return true;
+        }
+      }
+      return false;
     } catch (e) {
       throw Exception('Failed to check existing bookings: $e');
     }
@@ -164,20 +164,21 @@ class ScheduleRepository {
     }
   }
 
-  // Get alternative available slots for error handling (SRS E1 flow)
+  // FIXED: Simplified alternative slots query
   Future<List<Schedule>> getAlternativeSlots(DateTime excludeDate) async {
     try {
       final snapshot = await FirebaseFirestore.instance
           .collection(_collection)
           .where('status', isEqualTo: 'available')
-          .where('available_slots', isGreaterThan: 0)
-          .orderBy('schedule_date', descending: false)
-          .limit(5)
+          .limit(10) // Get more results to filter from
           .get();
 
       return snapshot.docs
           .map((doc) => Schedule.fromMap(doc.data(), doc.id))
-          .where((schedule) => !_isSameDay(schedule.scheduleDate, excludeDate))
+          .where((schedule) => 
+              schedule.availableSlots > 0 && 
+              !_isSameDay(schedule.scheduleDate, excludeDate))
+          .take(5) // Take top 5 after filtering
           .toList();
     } catch (e) {
       throw Exception('Failed to get alternative slots: $e');
