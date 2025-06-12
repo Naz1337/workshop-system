@@ -92,20 +92,8 @@ class FirestoreService {
     return await query.get();
   }
 
-  Future<DocumentReference> addDocument({required String collectionPath, required Map<String, dynamic> data}) async {
-    return await _db.collection(collectionPath).add(data);
-  }
-
   Future<void> setDocument({required String collectionPath, required String documentId, required Map<String, dynamic> data}) async {
     await _db.collection(collectionPath).doc(documentId).set(data);
-  }
-
-  Future<void> updateDocument({required String collectionPath, required String documentId, required Map<String, dynamic> data}) async {
-    await _db.collection(collectionPath).doc(documentId).update(data);
-  }
-
-  Future<void> deleteDocument({required String collectionPath, required String documentId}) async {
-    await _db.collection(collectionPath).doc(documentId).delete();
   }
 
   Stream<QuerySnapshot> streamCollection({
@@ -172,6 +160,27 @@ class FirestoreService {
     return _db.collection(collectionPath).doc(documentId).snapshots();
   }
   
+  Future<String> addDocument({required String collectionPath, required Map<String, dynamic> data}) async {
+    final docRef = await _db.collection(collectionPath).add(data);
+    return docRef.id;
+  }
+
+  Stream<QuerySnapshot> getCollectionWithQuery(String collection, String field, dynamic value) {
+    return _db.collection(collection).where(field, isEqualTo: value).snapshots();
+  }
+
+  Future<T> runTransaction<T>(Future<T> Function(Transaction) transactionHandler) async {
+    return await _db.runTransaction(transactionHandler);
+  }
+
+  Future<void> updateDocument({required String collectionPath, required String documentId, required Map<String, dynamic> data}) async {
+    await _db.collection(collectionPath).doc(documentId).update(data);
+  }
+
+  Future<void> deleteDocument({required String collectionPath, required String documentId}) async {
+    await _db.collection(collectionPath).doc(documentId).delete();
+  }
+
   String generateDocumentId(String collectionPath) {
   return _db.collection(collectionPath).doc().id;
 }

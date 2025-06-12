@@ -1,7 +1,7 @@
 // lib/data/repositories/schedule_repository.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/schedule.dart';
-import '../services/firestore_service.dart';
+import '/services/firestore_service.dart';
 
 class ScheduleRepository {
   final FirestoreService _firestoreService;
@@ -12,7 +12,7 @@ class ScheduleRepository {
 
   Future<String> createSchedule(Schedule schedule) async {
     try {
-      return await _firestoreService.addDocument(_collection, schedule.toMap());
+      return await _firestoreService.addDocument(collectionPath: _collection, data: schedule.toMap());
     } catch (e) {
       throw Exception('Failed to create schedule: $e');
     }
@@ -178,7 +178,7 @@ class ScheduleRepository {
   // Update schedule
   Future<void> updateSchedule(String scheduleId, Map<String, dynamic> updates) async {
     try {
-      await _firestoreService.updateDocument(_collection, scheduleId, {
+      await _firestoreService.updateDocument(collectionPath: _collection, documentId: scheduleId, data: {
         ...updates,
         'updated_at': Timestamp.now(),
       });
@@ -190,7 +190,7 @@ class ScheduleRepository {
   // Delete schedule
   Future<void> deleteSchedule(String scheduleId) async {
     try {
-      await _firestoreService.deleteDocument(_collection, scheduleId);
+      await _firestoreService.deleteDocument(collectionPath: _collection, documentId: scheduleId);
     } catch (e) {
       throw Exception('Failed to delete schedule: $e');
     }

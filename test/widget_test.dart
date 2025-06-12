@@ -7,12 +7,9 @@ import 'package:workshop_system/data/repositories/schedule_repository.dart';
 
 void main() {
   testWidgets('App loads successfully', (WidgetTester tester) async {
-    // Create dependencies
-    final firestoreService = FirestoreService();
-    final scheduleRepository = ScheduleRepository(firestoreService: firestoreService);
 
     // Build the app
-    await tester.pumpWidget(MyApp(scheduleRepository: scheduleRepository));
+    await tester.pumpWidget(MyApp());
 
     // Just test that the app loads without crashing
     expect(find.byType(MaterialApp), findsOneWidget);
