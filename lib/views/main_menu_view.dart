@@ -101,6 +101,12 @@ class MainMenuView extends StatelessWidget {
                                 () => context.push('/pending-payroll'), // Navigation action
                               ),
                             ],
+                            const SizedBox(height: 16.0),
+                            _buildMenuItem(
+                                context, 
+                                'Manage Schedule Demo', 
+                                () => context.push('/demo')
+                            )
                           ],
                         ),
                       ),
