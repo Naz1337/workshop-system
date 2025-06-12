@@ -25,10 +25,9 @@ class _MySchedulePageState extends State<MySchedulePage> {
       )..initialize(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('MY SCHEDULE'), // Match SRS Figure 3.19
+          title: const Text('MY SCHEDULE'), 
           centerTitle: true,
           actions: [
-            // FIXED: Add navigation to book more slots
             IconButton(
               icon: const Icon(Icons.add),
               onPressed: () => context.push('/select-slot/${widget.foremanId}'),
@@ -69,7 +68,6 @@ class _MySchedulePageState extends State<MySchedulePage> {
 
             return Column(
               children: [
-                // Header matching SRS Figure 3.19
                 Container(
                   padding: const EdgeInsets.all(16),
                   color: Colors.grey[100],
@@ -105,7 +103,6 @@ class _MySchedulePageState extends State<MySchedulePage> {
                   child: _buildScheduleList(viewModel),
                 ),
                 
-                // FIXED: Bottom navigation bar with multiple options
                 _buildBottomNavigationBar(),
               ],
             );
@@ -115,7 +112,6 @@ class _MySchedulePageState extends State<MySchedulePage> {
     );
   }
 
-  // FIXED: Enhanced bottom navigation bar
   Widget _buildBottomNavigationBar() {
     return Container(
       padding: const EdgeInsets.all(16),

@@ -40,9 +40,8 @@ class _SlotSelectionPageState extends State<SlotSelectionPage> with SingleTicker
       )..initialize(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Schedule'), // Match SRS UI Figure 3.14
+          title: const Text('Schedule'),
           actions: [
-            // FIXED: Add navigation to My Schedule
             IconButton(
               icon: const Icon(Icons.schedule),
               onPressed: () => context.push('/my-schedule/${widget.foremanId}'),
@@ -65,13 +64,12 @@ class _SlotSelectionPageState extends State<SlotSelectionPage> with SingleTicker
               });
             }
 
-            // Handle SRS Exception Flows
             if (viewModel.errorMessage != null) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (viewModel.errorType == SlotSelectionErrorType.slotFull) {
-                  _showSlotFullDialog(context, viewModel); // SRS E1 Flow
+                  _showSlotFullDialog(context, viewModel); 
                 } else if (viewModel.errorType == SlotSelectionErrorType.doubleBooking) {
-                  _showDoubleBookingDialog(context); // SRS E2 Flow
+                  _showDoubleBookingDialog(context); 
                 } else if (viewModel.errorType == SlotSelectionErrorType.oneSlotPerDay) {
                   _showOneSlotPerDayDialog(context);
                 } else {
@@ -87,17 +85,14 @@ class _SlotSelectionPageState extends State<SlotSelectionPage> with SingleTicker
 
             return Column(
               children: [
-                // Calendar Widget - Match SRS UI Figure 3.14
                 _buildCalendarHeader(),
                 _buildCalendarGrid(),
                 const SizedBox(height: 16),
                 
-                // Available Slots List
                 Expanded(
                   child: _buildSlotsList(viewModel),
                 ),
                 
-                // FIXED: Add bottom navigation bar
                 _buildBottomNavigationBar(),
               ],
             );
@@ -107,7 +102,6 @@ class _SlotSelectionPageState extends State<SlotSelectionPage> with SingleTicker
     );
   }
 
-  // FIXED: Add bottom navigation bar for better UX
   Widget _buildBottomNavigationBar() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -183,7 +177,6 @@ class _SlotSelectionPageState extends State<SlotSelectionPage> with SingleTicker
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         children: [
-          // Weekday headers
           Row(
             children: ['S', 'M', 'T', 'W', 'T', 'F', 'S']
                 .map((day) => Expanded(
@@ -194,7 +187,6 @@ class _SlotSelectionPageState extends State<SlotSelectionPage> with SingleTicker
                 .toList(),
           ),
           const SizedBox(height: 8),
-          // Calendar grid
           _buildCalendarDays(),
         ],
       ),
@@ -208,12 +200,10 @@ class _SlotSelectionPageState extends State<SlotSelectionPage> with SingleTicker
     
     List<Widget> dayWidgets = [];
     
-    // Empty cells for days before the first day of the month
     for (int i = 0; i < firstWeekday; i++) {
       dayWidgets.add(const Expanded(child: SizedBox()));
     }
     
-    // Days of the month
     for (int day = 1; day <= lastDayOfMonth.day; day++) {
       final date = DateTime(_selectedDate.year, _selectedDate.month, day);
       final isToday = _isSameDay(date, DateTime.now());
@@ -250,7 +240,6 @@ class _SlotSelectionPageState extends State<SlotSelectionPage> with SingleTicker
       );
     }
     
-    // Build rows of 7 days each
     List<Widget> rows = [];
     for (int i = 0; i < dayWidgets.length; i += 7) {
       rows.add(
@@ -323,7 +312,6 @@ class _SlotSelectionPageState extends State<SlotSelectionPage> with SingleTicker
     );
   }
 
-  // FIXED: Updated success dialog with proper navigation
   void _showSuccessDialog(BuildContext context, String message) {
     showDialog(
       context: context,
@@ -346,7 +334,6 @@ class _SlotSelectionPageState extends State<SlotSelectionPage> with SingleTicker
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              // FIXED: Proper navigation to My Schedule
               context.push('/my-schedule/${widget.foremanId}');
             },
             child: const Text('Go to My Schedule'),
@@ -362,7 +349,6 @@ class _SlotSelectionPageState extends State<SlotSelectionPage> with SingleTicker
     );
   }
 
-  // SRS E1: Slot Full Dialog - Figure 3.15
   void _showSlotFullDialog(BuildContext context, SlotSelectionViewModel viewModel) {
     showDialog(
       context: context,
@@ -398,7 +384,6 @@ class _SlotSelectionPageState extends State<SlotSelectionPage> with SingleTicker
     );
   }
 
-  // SRS E2: Double Booking Dialog - Figure 3.17
   void _showDoubleBookingDialog(BuildContext context) {
     showDialog(
       context: context,

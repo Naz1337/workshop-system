@@ -10,7 +10,6 @@ class ScheduleRepository {
   ScheduleRepository({required FirestoreService firestoreService})
       : _firestoreService = firestoreService;
 
-  // Create a new schedule - SRS Requirement WMS-RQ-02-02
   Future<String> createSchedule(Schedule schedule) async {
     try {
       return await _firestoreService.addDocument(_collection, schedule.toMap());
@@ -19,7 +18,6 @@ class ScheduleRepository {
     }
   }
 
-  // Get all schedules for a workshop owner - SRS Requirement WMS-RQ-02-01
   Stream<List<Schedule>> getSchedulesByWorkshop(String workshopId) {
     return _firestoreService
         .getCollectionWithQuery(_collection, 'workshop_id', workshopId)
@@ -28,7 +26,7 @@ class ScheduleRepository {
             .toList());
   }
 
-  // FIXED: Simplified query to avoid index issues
+  // Simplified query to avoid index issues
   Stream<List<Schedule>> getAvailableSchedules() {
     return FirebaseFirestore.instance
         .collection(_collection)
@@ -36,11 +34,11 @@ class ScheduleRepository {
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => Schedule.fromMap(doc.data(), doc.id))
-            .where((schedule) => schedule.availableSlots > 0) // Filter in memory
-            .toList()..sort((a, b) => a.scheduleDate.compareTo(b.scheduleDate))); // Sort in memory
+            .where((schedule) => schedule.availableSlots > 0) // 
+            .toList()..sort((a, b) => a.scheduleDate.compareTo(b.scheduleDate))); 
   }
 
-  // FIXED: Simplified query for foreman schedules
+  // Simplified query for foreman schedules
   Stream<List<Schedule>> getSchedulesByForeman(String foremanId) {
     return FirebaseFirestore.instance
         .collection(_collection)
@@ -48,13 +46,12 @@ class ScheduleRepository {
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => Schedule.fromMap(doc.data(), doc.id))
-            .toList()..sort((a, b) => a.scheduleDate.compareTo(b.scheduleDate))); // Sort in memory
+            .toList()..sort((a, b) => a.scheduleDate.compareTo(b.scheduleDate)));
   }
 
-  // FIXED: Simplified check for existing bookings
+  // Simplified check for existing bookings
   Future<bool> hasBookingOnDate(String foremanId, DateTime date) async {
     try {
-      // Get all foreman's bookings and check in memory
       final snapshot = await FirebaseFirestore.instance
           .collection(_collection)
           .where('foreman_ids', arrayContains: foremanId)
@@ -72,7 +69,6 @@ class ScheduleRepository {
     }
   }
 
-  // Enhanced booking with SRS business rules - WMS-RQ-02-03, WMS-RQ-02-04
   Future<void> bookSlot(String scheduleId, String foremanId) async {
     try {
       await _firestoreService.runTransaction((transaction) async {
@@ -85,18 +81,15 @@ class ScheduleRepository {
 
         final schedule = Schedule.fromMap(snapshot.data()!, scheduleId);
         
-        // SRS Rule: Check if foreman already booked this slot (Double Booking - E2)
         if (schedule.isForemanAlreadyBooked(foremanId)) {
           throw DoubleBookingException('You have already booked this slot. Please check "My Schedule" page.');
         }
 
-        // SRS Rule: Check if foreman already has booking on same date
         final hasExistingBooking = await hasBookingOnDate(foremanId, schedule.scheduleDate);
         if (hasExistingBooking) {
           throw OneSlotPerDayException('You can only book one slot per day. Please choose a different date.');
         }
         
-        // SRS Rule: Check if slot is full (Slot Full - E1)
         if (schedule.isSlotFull()) {
           throw SlotFullException('This slot is full. Please select another slot.');
         }
@@ -115,7 +108,6 @@ class ScheduleRepository {
           'updated_at': Timestamp.now(),
         });
 
-        // TODO: Implement notification to workshop owner (SRS WMS-RQ-02-06)
         await _notifyWorkshopOwner(schedule.workshopId, 'booking', scheduleId, foremanId);
       });
     } catch (e) {
@@ -126,7 +118,6 @@ class ScheduleRepository {
     }
   }
 
-  // Enhanced cancellation with SRS requirements - WMS-RQ-02-07, WMS-RQ-02-08
   Future<void> cancelBooking(String scheduleId, String foremanId) async {
     try {
       await _firestoreService.runTransaction((transaction) async {
@@ -156,7 +147,6 @@ class ScheduleRepository {
           'updated_at': Timestamp.now(),
         });
 
-        // SRS Requirement: Notify workshop owner (WMS-RQ-02-09)
         await _notifyWorkshopOwner(schedule.workshopId, 'cancellation', scheduleId, foremanId);
       });
     } catch (e) {
@@ -164,13 +154,13 @@ class ScheduleRepository {
     }
   }
 
-  // FIXED: Simplified alternative slots query
+  // Slots query
   Future<List<Schedule>> getAlternativeSlots(DateTime excludeDate) async {
     try {
       final snapshot = await FirebaseFirestore.instance
           .collection(_collection)
           .where('status', isEqualTo: 'available')
-          .limit(10) // Get more results to filter from
+          .limit(10) 
           .get();
 
       return snapshot.docs
@@ -206,17 +196,13 @@ class ScheduleRepository {
     }
   }
 
-  // Private helper methods
   bool _isSameDay(DateTime date1, DateTime date2) {
     return date1.year == date2.year && 
            date1.month == date2.month && 
            date1.day == date2.day;
   }
 
-  // TODO: Implement notification system
   Future<void> _notifyWorkshopOwner(String workshopId, String action, String scheduleId, String foremanId) async {
-    // This should implement the notification system mentioned in SRS
-    // For now, we'll just log it
     print('Notification: $action by $foremanId for schedule $scheduleId in workshop $workshopId');
   }
 }

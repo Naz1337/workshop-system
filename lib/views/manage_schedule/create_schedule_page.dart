@@ -21,7 +21,6 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
   late TimeOfDay _startTime;
   late TimeOfDay _endTime;
   DayType _dayType = DayType.morning;
-  // SRS Requirement: Fixed at 3 foremen per slot - removed slider
   static const int _maxForeman = 3;
 
   @override
@@ -41,7 +40,7 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
       ),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Add Slot'), // Match SRS UI Figure 3.12
+          title: const Text('Add Slot'),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () => context.pop(),
@@ -49,7 +48,7 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
         ),
         body: Consumer<CreateScheduleViewModel>(
           builder: (context, viewModel, child) {
-            // Show success message and navigate back - SRS Figure 3.13
+            // Show success message and navigate back
             if (viewModel.successMessage != null) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 _showSuccessDialog(context, viewModel.successMessage!);
@@ -76,7 +75,7 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Date Selection - Match SRS UI layout
+                    // Date Selection
                     Card(
                       child: ListTile(
                         title: const Text('Date'),
@@ -115,7 +114,7 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Day Type Selection - Match SRS dropdown
+                    // Day Type Selection
                     Card(
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
@@ -174,7 +173,7 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Save Button - Match SRS UI
+                    // Save Button
                     ElevatedButton(
                       onPressed: viewModel.isLoading ? null : () => _createSchedule(viewModel),
                       style: ElevatedButton.styleFrom(
@@ -204,7 +203,6 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
     );
   }
 
-  // Helper method to format time consistently
   String _formatTime(TimeOfDay time) {
     return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
   }
@@ -269,7 +267,6 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
     }
   }
 
-  // Success dialog matching SRS Figure 3.13
   void _showSuccessDialog(BuildContext context, String message) {
     showDialog(
       context: context,
@@ -292,7 +289,7 @@ class _CreateSchedulePageState extends State<CreateSchedulePage> {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              context.pop(); // Navigate back to schedule overview
+              context.pop();
             },
             child: const Text('OK'),
           ),

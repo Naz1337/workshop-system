@@ -39,13 +39,13 @@ class _ScheduleOverviewPageState extends State<ScheduleOverviewPage> with Single
       )..initialize(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('SCHEDULE'), // Match SRS Figure 3.11
+          title: const Text('SCHEDULE'), 
           centerTitle: true,
           actions: [
             IconButton(
               icon: const Icon(Icons.add),
               onPressed: () => context.push('/create-schedule/${widget.workshopId}'),
-              tooltip: 'Add Slot', // Match SRS UI
+              tooltip: 'Add Slot', 
             ),
           ],
           bottom: TabBar(
@@ -87,13 +87,11 @@ class _ScheduleOverviewPageState extends State<ScheduleOverviewPage> with Single
   }
 
   Widget _buildTodaySchedules(ScheduleOverviewViewModel viewModel) {
-    // Filter schedules for today and upcoming days
     final now = DateTime.now();
     final todaySchedules = viewModel.schedules.where((schedule) {
       return schedule.scheduleDate.isAfter(now.subtract(const Duration(days: 1)));
     }).toList();
 
-    // Sort by date
     todaySchedules.sort((a, b) => a.scheduleDate.compareTo(b.scheduleDate));
 
     if (todaySchedules.isEmpty) {
@@ -170,17 +168,17 @@ class _ScheduleCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       child: Column(
         children: [
-          // Foreman List - Match SRS Figure 3.11 layout
+          // Foreman List
           if (schedule.foremanIds.isNotEmpty) ...[
             ...schedule.foremanIds.asMap().entries.map((entry) {
               final index = entry.key;
               final foremanId = entry.value;
               return _ForemanRow(
-                initial: String.fromCharCode(65 + index), // A, B, C, etc.
-                name: 'Foreman ${foremanId.substring(0, 8)}', // Truncated ID for display
+                initial: String.fromCharCode(65 + index),
+                name: 'Foreman ${foremanId.substring(0, 8)}', 
                 slot: '${schedule.dayType.toString().split('.').last} Slot',
                 time: '${_formatTime(schedule.startTime)} - ${_formatTime(schedule.endTime)}',
-                status: 'Confirmed', // Match SRS UI
+                status: 'Confirmed', 
               );
             }),
           ] else ...[
@@ -298,7 +296,7 @@ class _ForemanRow extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Initial Circle - Match SRS UI Figure 3.11
+          // Initial Circle
           Container(
             width: 40,
             height: 40,
@@ -335,7 +333,7 @@ class _ForemanRow extends StatelessWidget {
             ),
           ),
           
-          // Status Badge - Match SRS UI
+          // Status Badge
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(

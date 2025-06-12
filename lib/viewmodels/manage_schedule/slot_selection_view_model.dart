@@ -26,7 +26,6 @@ class SlotSelectionViewModel extends ChangeNotifier {
   String? _successMessage;
   SlotSelectionErrorType? _errorType;
 
-  // Getters
   List<Schedule> get availableSchedules => _availableSchedules;
   bool get isLoading => _isLoading;
   bool get isBooking => _isBooking;
@@ -34,7 +33,6 @@ class SlotSelectionViewModel extends ChangeNotifier {
   String? get successMessage => _successMessage;
   SlotSelectionErrorType? get errorType => _errorType;
 
-  // Initialize stream
   void initialize() {
     _setLoading(true);
     _scheduleRepository.getAvailableSchedules().listen(
@@ -49,7 +47,6 @@ class SlotSelectionViewModel extends ChangeNotifier {
     );
   }
 
-  // Enhanced booking with SRS error handling
   Future<void> bookSlot(String scheduleId) async {
     _setBooking(true);
     _clearMessages();
@@ -59,13 +56,10 @@ class SlotSelectionViewModel extends ChangeNotifier {
       _successMessage = 'Slot booked successfully';
       notifyListeners();
     } on DoubleBookingException catch (e) {
-      // SRS E2: Double Booking Exception Flow
       _setError(e.toString(), SlotSelectionErrorType.doubleBooking);
     } on OneSlotPerDayException catch (e) {
-      // SRS Business Rule: One slot per day
       _setError(e.toString(), SlotSelectionErrorType.oneSlotPerDay);
     } on SlotFullException catch (e) {
-      // SRS E1: Slot Full Exception Flow
       _setError(e.toString(), SlotSelectionErrorType.slotFull);
     } catch (e) {
       _setError(e.toString(), SlotSelectionErrorType.generic);
@@ -74,24 +68,19 @@ class SlotSelectionViewModel extends ChangeNotifier {
     }
   }
 
-  // Check availability before booking - Enhanced with SRS rules
+  // Check availability before booking
   bool checkAvailability(Schedule schedule) {
-    // SRS Rule: Check if slot is available
     if (schedule.status != ScheduleStatus.available) return false;
     
-    // SRS Rule: Check if slot has available capacity
     if (schedule.availableSlots <= 0) return false;
     
-    // SRS Rule: Check if foreman already booked this slot (prevents double booking)
     if (schedule.isForemanAlreadyBooked(foremanId)) return false;
     
-    // SRS Rule: Check if slot is full (max 3 foremen)
     if (schedule.isSlotFull()) return false;
     
     return true;
   }
 
-  // SRS E1 Flow: Get alternative slots when slot is full
   Future<List<Schedule>> getAlternativeSlots(DateTime excludeDate) async {
     try {
       return await _scheduleRepository.getAlternativeSlots(excludeDate);
@@ -100,13 +89,10 @@ class SlotSelectionViewModel extends ChangeNotifier {
     }
   }
 
-  // Enhanced validation for SRS business rules
   Future<bool> canBookSlot(Schedule schedule) async {
     try {
-      // Basic availability check
       if (!checkAvailability(schedule)) return false;
       
-      // SRS Rule: Check if foreman already has booking on same date
       final hasBookingOnDate = await _scheduleRepository.hasBookingOnDate(
         foremanId, 
         schedule.scheduleDate
@@ -127,18 +113,14 @@ class SlotSelectionViewModel extends ChangeNotifier {
     }).toList();
   }
 
-  // Get schedules by day type
   List<Schedule> getSchedulesByDayType(DayType dayType, DateTime date) {
     return getSchedulesForDate(date)
         .where((schedule) => schedule.dayType == dayType)
         .toList();
   }
 
-  // Check if foreman has any bookings (for UI state management)
   Future<bool> hasAnyBookings() async {
     try {
-      // This would typically be handled by another stream or method
-      // For now, we'll return false and let the actual check happen during booking
       return false;
     } catch (e) {
       return false;

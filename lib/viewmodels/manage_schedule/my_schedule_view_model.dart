@@ -18,7 +18,6 @@ class MyScheduleViewModel extends ChangeNotifier {
   String? _errorMessage;
   String? _successMessage;
 
-  // Getters
   List<Schedule> get mySchedules => _mySchedules;
   bool get isLoading => _isLoading;
   bool get isCancelling => _isCancelling;
@@ -71,11 +70,11 @@ class MyScheduleViewModel extends ChangeNotifier {
     }
   }
 
-  // Check if booking can be cancelled (e.g., not within 24 hours)
+  // Check if booking can be cancelled 
   bool canCancelBooking(Schedule schedule) {
     final now = DateTime.now();
     final timeDifference = schedule.scheduleDate.difference(now);
-    return timeDifference.inHours > 24; // Can cancel if more than 24 hours ahead
+    return timeDifference.inHours > 24; 
   }
 
   void _setLoading(bool loading) {
