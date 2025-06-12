@@ -39,7 +39,7 @@ class PayrollRepository {
       data: payroll.toMap(),
     );
    } catch (e) {
-      print('Error creating foreman profile: $e');
+      print('Error in save payroll: $e');
     }
   }
 }
