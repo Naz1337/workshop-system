@@ -1,49 +1,73 @@
-// lib/viewmodels/manage_payroll/salary_detail_viewmodel.dart
 import 'package:flutter/foundation.dart';
-import '../../models/payroll_model.dart';
 import '../../repositories/payroll_repository.dart';
+import '../../models/payroll_model.dart';
+import '../../services/payment_api_service.dart';
+import 'dart:io';
 
+enum PaymentStatus { initial, processing, success, failure }
+
+// ViewModel for salary detail screen using MVVM architecture.
+// Manages payment logic, error handling, and Firestore integration.
 class SalaryDetailViewModel extends ChangeNotifier {
-  final PayrollRepository _payrollRepository;
-  final Payroll payroll;
+  final PayrollRepository payrollRepo;
+  PaymentAPIService? paymentService;
 
-  SalaryDetailViewModel({
-    required PayrollRepository payrollRepository,
-    required this.payroll,
-  }) : _payrollRepository = payrollRepository;
-
-  String _selectedMethod = 'DuitNow';
-  String get selectedMethod => _selectedMethod;
-  set selectedMethod(String value) {
-    _selectedMethod = value;
-    notifyListeners();
-  }
+  //constuctor
+  SalaryDetailViewModel({required this.payrollRepo,this.paymentService,});
 
   bool _isProcessing = false;
-  bool get isProcessing => _isProcessing;
+  String? _error;
+  PaymentStatus _paymentStatus = PaymentStatus.initial;
 
-  String? _paymentError;
-  String? get paymentError => _paymentError;
-  // To reset error after displaying
-  void clearPaymentError() {
-    _paymentError = null;
-    // notifyListeners(); // Optional: depends on how you handle UI updates
+  // Public getters for UI state binding
+  bool get isProcessing => _isProcessing;
+  String? get error => _error;
+  PaymentStatus get paymentStatus => _paymentStatus;
+  
+
+  /// Injects the selected payment API service at runtime
+  void setPaymentService(PaymentAPIService service) {
+    paymentService = service;
+    notifyListeners();
   }
 
-
-  bool _paymentSuccessful = false;
-  bool get paymentSuccessful => _paymentSuccessful;
-
-  Future<void> processPayment() async {
+  /// Processes a payment and stores the result in Firestore
+  Future<void> processPayroll(Payroll payroll) async {
     _isProcessing = true;
-    _paymentError = null;
-    _paymentSuccessful = false;
+    _error = null;
+    _paymentStatus = PaymentStatus.processing;
     notifyListeners();
+
     try {
-      await _payrollRepository.confirmPayment(payroll, _selectedMethod);
-      _paymentSuccessful = true;
+      if (paymentService == null) {
+        _error = 'Payment method not selected.';
+        _paymentStatus = PaymentStatus.failure;
+        notifyListeners();
+        return;
+      }
+
+      final paymentSuccess = await paymentService!.processPayment(
+        amount: payroll.amount,
+        method: payroll.paymentMethod,
+        recipient: payroll.foremanId,
+      );
+
+      if (!paymentSuccess) {
+        _error = 'Payment failed';
+        _paymentStatus = PaymentStatus.failure;
+        notifyListeners();
+        return;
+      }
+
+      await payrollRepo.savePayroll(payroll); // Save after payment
+      _paymentStatus = PaymentStatus.success;
+      
+    } on SocketException {
+      _error = 'No internet connection';
+      _paymentStatus = PaymentStatus.failure;
     } catch (e) {
-      _paymentError = e.toString();
+      _error = 'Unexpected error: $e';
+      _paymentStatus = PaymentStatus.failure;
     } finally {
       _isProcessing = false;
       notifyListeners();

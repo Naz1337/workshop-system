@@ -1,4 +1,4 @@
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 class Foreman {
   final String id; // foreman_id
   final String? userId; // If foreman is linked to a user
@@ -78,4 +78,21 @@ class Foreman {
       skills: skills ?? this.skills, // Added skills
     );
   }
+
+// Create Foreman from Firestore document
+factory Foreman.fromFirestore(DocumentSnapshot doc) {
+  final data = doc.data() as Map<String, dynamic>;
+  return Foreman(
+    id: doc.id,
+    userId: data['userId'],
+    foremanName: data['foremanName'] ?? '',
+    foremanEmail: data['foremanEmail'] ?? '',
+    foremanBankAccountNo: data['foremanBankAccountNo'] ?? '',
+    yearsOfExperience: data['yearsOfExperience'] ?? 0,
+    resumeUrl: data['resumeUrl'],
+    ratingId: data['ratingId'],
+    pastExperienceDetails: data['pastExperienceDetails'],
+    skills: data['skills'],
+  );
+}
 }

@@ -1,99 +1,183 @@
 // lib/views/manage_payroll/salary_detail_view.dart
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../models/foreman_model.dart';
 import '../../models/payroll_model.dart';
 import '../../repositories/payroll_repository.dart';
+import '../../services/payment_api_service.dart';
 import '../../viewmodels/manage_payroll/salary_detail_viewmodel.dart';
 
+/// The main view for entering salary details and processing payroll payment.
 class SalaryDetailView extends StatelessWidget {
-  final Payroll payroll;
+  final Foreman foreman;
+  
 
-  const SalaryDetailView({super.key, required this.payroll});
+  const SalaryDetailView({Key? key, required this.foreman}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => SalaryDetailViewModel(
-        payrollRepository: Provider.of<PayrollRepository>(context, listen: false),
-        payroll: payroll,
+    final payrollRepo = Provider.of<PayrollRepository>(context, listen: false);
+
+    // Provide only the repository; service will be set later based on selected payment method
+    return ChangeNotifierProvider<SalaryDetailViewModel>(
+      create: (_) => SalaryDetailViewModel(
+        payrollRepo: payrollRepo,
+        paymentService: null, // Set later when method selected
       ),
-      child: Scaffold(
-        appBar: AppBar(title: const Text('Salary Details')),
-        body: Builder( // Use Builder to get a new context
-          builder: (context) {
-            // Listen to changes in SalaryDetailViewModel
-            final viewModel = Provider.of<SalaryDetailViewModel>(context);
+      child: _SalaryDetailForm(foreman: foreman),
+    );
+  }
+}
+/// Internal form widget for entering and confirming salary payment.
+class _SalaryDetailForm extends StatefulWidget {
+  final Foreman foreman;
 
-            // Handle side effects
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (viewModel.paymentSuccessful) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Payment successful!'), backgroundColor: Colors.green),
-                );
-                Navigator.pop(context, true); // Pop and indicate success
-              } else if (viewModel.paymentError != null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Error: ${viewModel.paymentError}'), backgroundColor: Colors.red),
-                );
-                viewModel.clearPaymentError(); // Clear error after showing
-              }
-            });
+  const _SalaryDetailForm({Key? key, required this.foreman}) : super(key: key);
+  
+  @override
+  State<_SalaryDetailForm> createState() => _SalaryDetailFormState();
+}
 
-            return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Foreman ID: ${viewModel.payroll.foremanId}'),
-                  Text('Foreman Name: ${viewModel.payroll.foremanName}', style: Theme.of(context).textTheme.titleLarge),
-                  const SizedBox(height: 8),
-                  Text('Salary Amount: RM ${viewModel.payroll.salary.toStringAsFixed(2)}', style: Theme.of(context).textTheme.titleMedium),
-                  Text('Created At: ${viewModel.payroll.createdAt.toLocal().toString().substring(0,16)}'), // Format date
-                  const SizedBox(height: 24),
-                  const Text('Select Payment Method:', style: TextStyle(fontWeight: FontWeight.bold)),
-                  DropdownButton<String>(
-                    value: viewModel.selectedMethod,
-                    isExpanded: true,
-                    onChanged: viewModel.isProcessing
-                        ? null
-                        : (value) {
-                            if (value != null) {
-                              viewModel.selectedMethod = value;
-                            }
-                          },
-                    items: ['DuitNow', 'iPay88']
-                        .map((method) => DropdownMenuItem(
-                              value: method,
-                              child: Text(method),
-                            ))
-                        .toList(),
-                  ),
-                  const SizedBox(height: 24),
-                  if (viewModel.isProcessing)
-                    const Center(child: CircularProgressIndicator())
-                  else
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('Cancel'),
-                        ),
-                        const SizedBox(width: 10),
-                        ElevatedButton.icon(
-                          icon: const Icon(Icons.payment),
-                          onPressed: () => viewModel.processPayment(),
-                          label: const Text('Confirm Payment'),
-                          style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).primaryColor, foregroundColor: Colors.white),
-                        ),
-                      ],
-                    ),
-                ],
+class _SalaryDetailFormState extends State<_SalaryDetailForm> {
+  final _formKey = GlobalKey<FormState>();
+  double _amount = 0.0;
+  double _hours = 0.0;
+  String _paymentMethod = 'DuitNow';
+
+  @override
+  Widget build(BuildContext context) {
+    final viewModel = context.watch<SalaryDetailViewModel>();
+
+    // Listen for payment status changes and show appropriate feedback
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (viewModel.paymentStatus == PaymentStatus.success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Payment successful!')),
+        );
+        Navigator.pop(context); // Go back
+      } else if (viewModel.paymentStatus == PaymentStatus.failure) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(viewModel.error ?? 'Payment failed.')),
+        );
+      }
+    });
+
+    return Scaffold(
+      appBar: AppBar(title: Text('Pay ${widget.foreman.foremanName}')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              // Error message if exists
+              if (viewModel.error != null)
+                Text(viewModel.error!, style: const TextStyle(color: Colors.red)),
+
+              // Amount field
+              TextFormField(
+                decoration: const InputDecoration(labelText: 'Amount (RM)'),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) return 'Enter amount';
+                  if (double.tryParse(value) == null) return 'Invalid number';
+                  return null;
+                },
+                onSaved: (value) => _amount = double.parse(value!),
               ),
-            );
-          },
+
+              // Hours field
+              TextFormField(
+                decoration: const InputDecoration(labelText: 'Hours Worked'),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) return 'Enter hours';
+                  if (double.tryParse(value) == null) return 'Invalid number';
+                  return null;
+                },
+                onSaved: (value) => _hours = double.parse(value!),
+              ),
+
+              // Dropdown for payment method
+              DropdownButtonFormField<String>(
+                value: _paymentMethod,
+                decoration: const InputDecoration(labelText: 'Payment Method'),
+                items: ['DuitNow', 'IPay88'].map((method) {
+                  return DropdownMenuItem(value: method, child: Text(method));
+                }).toList(),
+                onChanged: (value) => setState(() => _paymentMethod = value!),
+              ),
+
+              const SizedBox(height: 20),
+
+              // Submit button
+              viewModel.isProcessing
+                  ? const CircularProgressIndicator()
+                  : ElevatedButton(
+                      onPressed: () => _submitForm(context, viewModel),
+                      child: const Text('Process Payment'),
+                    ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  /// Validates and submits the form. Shows confirmation dialog.
+  void _submitForm(BuildContext context, SalaryDetailViewModel viewModel) {
+    if (_formKey.currentState?.validate() ?? false) {
+      _formKey.currentState?.save();
+
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Confirm Payment'),
+          content: Text(
+              'Pay RM${_amount.toStringAsFixed(2)} to ${widget.foreman.foremanName}?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+
+                // Inject correct payment service based on selected method
+                final paymentService = Provider.of<PaymentServiceFactory>(
+                  context,
+                  listen: false,
+                ).getService(_paymentMethod);
+
+                viewModel.setPaymentService(paymentService);
+
+                //Generate Firestore document ID
+                final generatedId = FirebaseFirestore.instance.collection('payrolls').doc().id;
+
+                // Build a Payroll object
+                final payroll = Payroll(
+                  id: generatedId, 
+                  foremanId: widget.foreman.id,
+                  amount: _amount,
+                  hoursWorked: _hours,
+                  paymentMethod: _paymentMethod,
+                  timestamp: DateTime.now(),
+                  status: 'pending',
+                );
+
+                await viewModel.processPayroll(payroll);
+                // UI feedback is now handled by the WidgetsBinding.instance.addPostFrameCallback in the build method
+              },
+              child: const Text('Confirm'),
+            ),
+          ],
+        ),
+      );
+    }
   }
 }

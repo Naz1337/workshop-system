@@ -88,11 +88,77 @@ class MainMenuView extends StatelessWidget {
                                   context.push('/foreman/applications/pending'),
                             ),
                             const SizedBox(height: 16.0),
+                            if (viewModel.isForeman) ...[
+                              _buildMenuItem(
+                                context,
+                                'Available Now',
+                                () => context.push('/workshops/available'),
+                              ),
+                              const SizedBox(height: 16.0),
+                              _buildMenuItem(
+                                context,
+                                'My Applications',
+                                () => context.push('/foreman/applications/pending'),
+                              ),
+                              const SizedBox(height: 16.0),
+                              _buildMenuItem(
+                                context,
+                                'Search Workshops',
+                                () => viewModel.navigateToWorkshopSearch(context),
+                              ),
+                              const SizedBox(height: 16.0),
+                              // Customer Rating Section
+                              _buildMenuItem(
+                                context,
+                                'Customer Rating',
+                                () => context.push('/customer-rating'),
+                              ),
+                              const SizedBox(height: 16.0),
+                              // View My Ratings Section
+                              _buildMenuItem(
+                                context,
+                                'My Ratings',
+                                () => context.push('/my-ratings'),
+                              ),
+                            ],
+                            if (viewModel.isWorkshopOwner) ...[
+                              _buildMenuItem(
+                                context,
+                                'Foreman Requests',
+                                () => context.push('/workshop/foremen/requests'),
+                              ),
+                              const SizedBox(height: 16.0),
+                              _buildMenuItem(
+                                context,
+                                'My Approved Foremen',
+                                () => context.push('/workshop/foremen/whitelisted'),
+                              ),
+                              const SizedBox(height: 16.0),
+                              _buildMenuItem(
+                                context,
+                                'Manage Workshop Schedule',
+                                () => context.push('/workshop/schedule/manage'),
+                              ),
+                              const SizedBox(height: 16.0), // Add spacing
+                              _buildMenuItem(
+                                context,
+                                'Manage Payroll', // Button text
+                                () => context.push('/pending-payroll'), // Navigation action
+                              ),
+                              const SizedBox(height: 16.0),
+                              // Workshop Owner can view all ratings for their workshop
+                              _buildMenuItem(
+                                context,
+                                'All Workshop Ratings',
+                                () => context.push('/all-ratings'),
+                              ),
+                            ],
+                            const SizedBox(height: 16.0),
                             _buildMenuItem(
-                              context,
-                              'Search Workshops',
-                              () => viewModel.navigateToWorkshopSearch(context),
-                            ),
+                                context, 
+                                'Manage Schedule Demo', 
+                                () => context.push('/demo')
+                            )
                           ],
                           if (viewModel.isWorkshopOwner) ...[
                             _buildMenuItem(

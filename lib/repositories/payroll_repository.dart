@@ -1,51 +1,45 @@
 // lib/repositories/payroll_repository.dart
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/payroll_model.dart'; // Updated import
+import '../services/firestore_service.dart';
+import '../models/payroll_model.dart';
+import '../models/foreman_model.dart';
 
 class PayrollRepository {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final FirestoreService _firestore;
+   final String _collectionPath = 'payrolls';
+  
 
-  Future<List<Payroll>> fetchPendingPayrolls() async {
-    final snapshot = await _db.collection('payrolls')
-      .where('isPaid', isEqualTo: false)
-      .get();
-    // Ensure createdAt is handled correctly if it's a Timestamp from Firestore
-    return snapshot.docs.map((doc) {
-      var data = doc.data();
-      data['id'] = doc.id; // Assuming 'id' should be the document ID
-      // If 'createdAt' is a Timestamp, convert it:
-      // if (data['createdAt'] is Timestamp) {
-      //   data['createdAt'] = (data['createdAt'] as Timestamp).toDate().toIso8601String();
-      // }
-      return Payroll.fromJson(data);
-    }).toList();
+  PayrollRepository(this._firestore);
+
+  // Stream all foremen (no status filtering)
+  Stream<List<Foreman>> getAllForemen() {
+    return _firestore
+        .streamCollection(collectionPath: 'foremen')
+        .map((snapshot) => snapshot.docs
+            .map((doc) => Foreman.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+            .toList());
   }
 
-  Future<void> confirmPayment(Payroll payroll, String method) async {
-    try {
-      final response = await _simulatePaymentAPI(method); // Made private
-
-      if (response == 'success') {
-        await _db.collection('payrolls').doc(payroll.id).update({
-          'isPaid': true,
-          'paymentMethod': method, // Optionally store payment method
-          'paidAt': FieldValue.serverTimestamp(), // Optionally store payment time
-        });
-      } else {
-        throw Exception(response);
-      }
-    } catch (e) {
-      rethrow;
-    }
+  // Add new payroll entry to Firestore
+  Future<void> addPayroll(Payroll payroll) async {
+    await _firestore.addDocument(
+      collectionPath: _collectionPath,
+      data: payroll.toMap(),
+    );
   }
 
-  // Private helper method
-  Future<String> _simulatePaymentAPI(String method) async {
-    await Future.delayed(const Duration(seconds: 2));
-    if (method == 'DuitNow' || method == 'iPay88') {
-      return 'success';
-    } else {
-      return 'Payment Declined';
+  // Save (or overwrite) a payroll with specific ID
+  Future<void> savePayroll(Payroll payroll) async {
+   try {
+    await _firestore.setDocument(
+      collectionPath: _collectionPath,
+      documentId: payroll.id,
+      data: payroll.toMap(),
+    );
+   } catch (e) {
+      print('Error in save payroll: $e');
     }
   }
 }

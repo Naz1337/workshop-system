@@ -1,7 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:workshop_system/models/app_user_model.dart';
+import 'package:workshop_system/services/firestore_service.dart';
 
 class AuthService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final FirestoreService _firestoreService;
+
+  AuthService({required FirestoreService firestoreService}) : _firestoreService = firestoreService;
 
   Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
 
@@ -86,6 +91,54 @@ class AuthService {
       throw Exception('Re-authentication failed: ${e.message}');
     } catch (e) {
       throw Exception('Re-authentication failed: ${e.toString()}');
+    }
+  }
+
+  Future<AppUser?> getCurrentAppUser() async {
+    try {
+      final user = _firebaseAuth.currentUser;
+      if (user == null) return null;
+
+      final doc = await _firestoreService.getDocument(
+        collectionPath: 'users',
+        documentId: user.uid,
+      );
+      return AppUser.fromFirestore(doc);
+    } catch (e) {
+      print('Error getting current AppUser: $e');
+      return null;
+    }
+  }
+
+  Future<bool> isWorkshopOwner() async {
+    try {
+      final appUser = await getCurrentAppUser();
+      return appUser?.role == 'workshop_owner';
+    } catch (e) {
+      print('Error checking if workshop owner: $e');
+      return false;
+    }
+  }
+
+  Future<bool> isForeman() async {
+    try {
+      final appUser = await getCurrentAppUser();
+      return appUser?.role == 'foreman';
+    } catch (e) {
+      print('Error checking if foreman: $e');
+      return false;
+    }
+  }
+
+  Future<String?> getCurrentForemanId() async {
+    try {
+      if (await isForeman()) {
+        return _firebaseAuth.currentUser?.uid;
+      }
+      return null;
+    } catch (e) {
+      print('Error getting current foreman ID: $e');
+      return null;
     }
   }
 }
