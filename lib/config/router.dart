@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:workshop_system/views/inventory/inventory_details_view.dart';
 
 import '../services/auth_service.dart';
 import '../views/auth/welcome_view.dart';
@@ -13,6 +14,17 @@ import '../views/profile/edit_workshop_profile_view.dart'; // Import EditWorksho
 import '../views/profile/foreman_display_profile_view.dart'; // Import ForemanDisplayProfileView
 import '../views/profile/workshop_display_profile_view.dart'; // Import WorkshopDisplayProfileView
 import '../views/foreman/workshop_search_view.dart'; // Import WorkshopSearchView
+import '../views/manage_payroll/pending_payroll_view.dart'; // Import PendingPayrollView
+import '../views/manage_payroll/salary_detail_view.dart'; // Import SalaryDetailView
+import '../models/payroll_model.dart'; // For Payroll type
+import '../views/inventory/inventory_list_owner_view.dart';
+import '../models/inventory_item.dart';
+import '../views/main_menu_view.dart';
+import '../views/inventory/inventory_list_owner_view.dart';
+import '../views/inventory/inventory_add_view.dart';
+import '../views/inventory/inventory_edit_view.dart';
+import '../views/inventory/inventory_usage_history_view.dart';
+import '../views/inventory/inventory_requests_view.dart';
 
 final GoRouter router = GoRouter(
   routes: <RouteBase>[
@@ -60,6 +72,71 @@ final GoRouter router = GoRouter(
         return const MainMenuView();
       },
     ),
+    //inventory routes
+    GoRoute(
+      path: '/inventory',
+      builder: (context, state) => const InventoryListOwnerView(),
+    ),
+    // ➕ Add Inventory Item
+    GoRoute(
+      path: '/inventory/add',
+      builder: (context, state) => const InventoryAddView(),
+    ),
+
+    GoRoute(
+      path: '/inventory/details/:id',
+      builder: (context, state) {
+        final itemId = state.pathParameters['id']!;
+        return InventoryDetailsView(itemId: itemId);
+      },
+    ),
+
+    // 📝 Edit Inventory Item
+    GoRoute(
+      path: '/inventory/edit/:id',
+      builder: (context, state) {
+        final itemId = state.pathParameters['id']!;
+        return InventoryEditView(itemId: itemId);
+      },
+    ),
+
+    // 📜 View Usage History
+    GoRoute(
+      path: '/inventory/history',
+      builder: (context, state) => const InventoryUsageHistoryView(itemId: ''),
+    ),
+
+    // ✅ Approve Item Requests
+    GoRoute(
+      path: '/inventory/requests',
+      builder: (context, state) => const InventoryRequestsView(),
+    ),
+
+    // New Payroll Routes
+    GoRoute(
+      path: '/manage-payroll/pending',
+      name: 'pendingPayrolls',
+      builder: (BuildContext context, GoRouterState state) {
+        return const PendingPayrollView();
+      },
+    ),
+    GoRoute(
+      path: '/manage-payroll/salary-detail',
+      name: 'salaryDetail',
+      builder: (BuildContext context, GoRouterState state) {
+        if (state.extra != null && state.extra is Payroll) {
+          final Payroll payroll = state.extra as Payroll;
+          return SalaryDetailView(payroll: payroll);
+        } else {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Error')),
+            body: const Center(
+              child: Text('Error: Payroll data not provided.'),
+            ),
+          );
+        }
+      },
+    ),
     GoRoute(
       path: '/profile/foreman/:foremanId',
       builder: (BuildContext context, GoRouterState state) {
@@ -71,7 +148,9 @@ final GoRouter router = GoRouter(
       path: '/profile/foreman/edit/:foremanId', // New route for editing
       builder: (BuildContext context, GoRouterState state) {
         final foremanId = state.pathParameters['foremanId']!;
-        return EditForemanProfileView(foremanId: foremanId); // Points to the renamed form
+        return EditForemanProfileView(
+          foremanId: foremanId,
+        ); // Points to the renamed form
       },
     ),
     GoRoute(
@@ -85,49 +164,72 @@ final GoRouter router = GoRouter(
       path: '/profile/workshop/edit/:workshopId', // New route for editing
       builder: (BuildContext context, GoRouterState state) {
         final workshopId = state.pathParameters['workshopId']!;
-        return EditWorkshopProfileView(workshopId: workshopId); // Points to the renamed form
+        return EditWorkshopProfileView(
+          workshopId: workshopId,
+        ); // Points to the renamed form
       },
     ),
     GoRoute(
       path: '/profile',
       builder: (BuildContext context, GoRouterState state) {
-        return Scaffold(appBar: AppBar(title: const Text('Profile Page')), body: const Center(child: Text('Profile Page Content')));
+        return Scaffold(
+          appBar: AppBar(title: const Text('Profile Page')),
+          body: const Center(child: Text('Profile Page Content')),
+        );
       },
     ),
     GoRoute(
       path: '/workshops',
       builder: (BuildContext context, GoRouterState state) {
-        return Scaffold(appBar: AppBar(title: const Text('Browse Workshops')), body: const Center(child: Text('Browse Workshops Content')));
+        return Scaffold(
+          appBar: AppBar(title: const Text('Browse Workshops')),
+          body: const Center(child: Text('Browse Workshops Content')),
+        );
       },
     ),
     GoRoute(
       path: '/workshops/available',
       builder: (BuildContext context, GoRouterState state) {
-        return Scaffold(appBar: AppBar(title: const Text('Available Workshops')), body: const Center(child: Text('Available Workshops Content')));
+        return Scaffold(
+          appBar: AppBar(title: const Text('Available Workshops')),
+          body: const Center(child: Text('Available Workshops Content')),
+        );
       },
     ),
     GoRoute(
       path: '/foreman/applications/pending',
       builder: (BuildContext context, GoRouterState state) {
-        return Scaffold(appBar: AppBar(title: const Text('Pending Applications')), body: const Center(child: Text('Pending Applications Content')));
+        return Scaffold(
+          appBar: AppBar(title: const Text('Pending Applications')),
+          body: const Center(child: Text('Pending Applications Content')),
+        );
       },
     ),
     GoRoute(
       path: '/workshop/foremen/requests',
       builder: (BuildContext context, GoRouterState state) {
-        return Scaffold(appBar: AppBar(title: const Text('Foreman Requests')), body: const Center(child: Text('Foreman Requests Content')));
+        return Scaffold(
+          appBar: AppBar(title: const Text('Foreman Requests')),
+          body: const Center(child: Text('Foreman Requests Content')),
+        );
       },
     ),
     GoRoute(
       path: '/workshop/foremen/whitelisted',
       builder: (BuildContext context, GoRouterState state) {
-        return Scaffold(appBar: AppBar(title: const Text('Whitelisted Foremen')), body: const Center(child: Text('Whitelisted Foremen Content')));
+        return Scaffold(
+          appBar: AppBar(title: const Text('Whitelisted Foremen')),
+          body: const Center(child: Text('Whitelisted Foremen Content')),
+        );
       },
     ),
     GoRoute(
       path: '/workshop/schedule/manage',
       builder: (BuildContext context, GoRouterState state) {
-        return Scaffold(appBar: AppBar(title: const Text('Manage Schedule')), body: const Center(child: Text('Manage Schedule Content')));
+        return Scaffold(
+          appBar: AppBar(title: const Text('Manage Schedule')),
+          body: const Center(child: Text('Manage Schedule Content')),
+        );
       },
     ),
   ],

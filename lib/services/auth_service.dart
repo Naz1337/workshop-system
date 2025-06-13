@@ -5,12 +5,15 @@ class AuthService {
 
   Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
 
-  Future<UserCredential?> registerWithEmailAndPassword(String email, String password) async {
+  get currentUser => null;
+
+  Future<UserCredential?> registerWithEmailAndPassword(
+    String email,
+    String password,
+  ) async {
     try {
-      UserCredential userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      UserCredential userCredential = await _firebaseAuth
+          .createUserWithEmailAndPassword(email: email, password: password);
       return userCredential;
     } on FirebaseAuthException catch (e) {
       // Handle specific Firebase Auth errors
@@ -25,12 +28,13 @@ class AuthService {
     }
   }
 
-  Future<UserCredential?> signInWithEmailAndPassword(String email, String password) async {
+  Future<UserCredential?> signInWithEmailAndPassword(
+    String email,
+    String password,
+  ) async {
     try {
-      UserCredential userCredential = await _firebaseAuth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      UserCredential userCredential = await _firebaseAuth
+          .signInWithEmailAndPassword(email: email, password: password);
       return userCredential;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
@@ -57,7 +61,9 @@ class AuthService {
       await _firebaseAuth.currentUser?.delete();
     } on FirebaseAuthException catch (e) {
       if (e.code == 'requires-recent-login') {
-        throw Exception('This operation is sensitive and requires recent authentication. Please re-authenticate before trying again.');
+        throw Exception(
+          'This operation is sensitive and requires recent authentication. Please re-authenticate before trying again.',
+        );
       }
       throw Exception('Failed to delete account: ${e.message}');
     } catch (e) {
@@ -71,7 +77,10 @@ class AuthService {
       if (user == null) {
         throw Exception('No user is currently signed in.');
       }
-      AuthCredential credential = EmailAuthProvider.credential(email: email, password: password);
+      AuthCredential credential = EmailAuthProvider.credential(
+        email: email,
+        password: password,
+      );
       await user.reauthenticateWithCredential(credential);
     } on FirebaseAuthException catch (e) {
       throw Exception('Re-authentication failed: ${e.message}');
