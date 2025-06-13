@@ -229,32 +229,6 @@ final GoRouter router = GoRouter(
       path: '/inventory/requests',
       builder: (context, state) => const InventoryRequestsView(),
     ),
-
-    // New Payroll Routes
-    GoRoute(
-      path: '/manage-payroll/pending',
-      name: 'pendingPayrolls',
-      builder: (BuildContext context, GoRouterState state) {
-        return const PendingPayrollView();
-      },
-    ),
-    GoRoute(
-      path: '/manage-payroll/salary-detail',
-      name: 'salaryDetail',
-      builder: (BuildContext context, GoRouterState state) {
-        if (state.extra != null && state.extra is Payroll) {
-          final Payroll payroll = state.extra as Payroll;
-          return SalaryDetailView(payroll: payroll);
-        } else {
-          return Scaffold(
-            appBar: AppBar(title: const Text('Error')),
-            body: const Center(
-              child: Text('Error: Payroll data not provided.'),
-            ),
-          );
-        }
-      },
-    ),
     // Rating Routes
     GoRoute(
       path: '/customer-rating',
