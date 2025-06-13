@@ -42,6 +42,9 @@ void main() async {
         Provider<FirestoreService>(
           create: (_) => FirestoreService(),
         ),
+        Provider<InventoryService>(
+          create: (_) => InventoryService(),
+        ),
         ProxyProvider<FirestoreService, AuthService>(
           update: (context, firestoreService, previousAuthService) =>
               AuthService(firestoreService: firestoreService),
